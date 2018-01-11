@@ -456,6 +456,8 @@ ul.menu > li:hover > ul.menu {
 #memory-out {
 	display: block;
 	font-family: monospace;
+	max-height: 400px;
+	overflow-y: scroll;
 }
 
 #memory-start {

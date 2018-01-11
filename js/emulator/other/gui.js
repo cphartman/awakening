@@ -332,10 +332,8 @@ function registerGUIEvents() {
 	window.setTimeout(function(){
 		windowStacks[10].show();
 		DebugMemoryInit()
-	},2000);
-
-	document.querySelector("#memory-start").addEventListener('change',DebugMemoryUpdate);
-
+	},1000);
+	
 	/*
 	$("#memory-next").click(function(){
 		var val = parseInt($("#memory-start").val(),16);
