@@ -39,5 +39,3 @@ awakening = {
 		gameboy.returnFromState(la_savestate);
 	}
 }
-
-awakening.Init();

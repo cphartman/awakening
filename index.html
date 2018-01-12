@@ -5,9 +5,9 @@
         <script type="text/javascript">
     var DEBUG_MESSAGES = true;
     var DEBUG_WINDOWING = true;
-    window.onload = function () {
+    document.addEventListener('DOMContentLoaded', function () {
         windowingInitialize();
-    }
+    });
         </script>
         <script type="text/javascript" src="js/emulator/other/windowStack.js"></script>
         <script type="text/javascript" src="js/emulator/other/terminal.js"></script>
@@ -230,11 +230,9 @@
         </ul>
         <div id="debug-rom-window" class="window">
             <div id="debug-rom-wrapper">
-                <div class='debug-toolbar'>
-                    <input id="memory-start" type='range' value="0" min="0" max="100" step="1">
-                    <div class='debug-text' id="memory-display"></div>
+                <div id='memory-toolbar'>
+                    <span>Memory Set: <input type="text" id="memory-change-addr"><input type="text" id="memort-change-val"><a href="#" id="memory-change-btn">Update</a></span>
                 </div>
-                <span>Memory Set: <input type="text" id="memory-change-addr"><input type="text" id="memort-change-val"><a href="#" id="memory-change-btn">Update</a></span>
                 
                 <div id="memory-out"></div>
             </div>

@@ -396,8 +396,7 @@ function GameBoyGyroSignalHandler(e) {
 //The emulator will call this to sort out the canvas properties for (re)initialization.
 function initNewCanvas() {
 	if (GameBoyEmulatorInitialized()) {
-		gameboy.canvas.width = gameboy.canvas.clientWidth;
-		gameboy.canvas.height = gameboy.canvas.clientHeight;
+		
 	}
 }
 //Call this when resizing the canvas:

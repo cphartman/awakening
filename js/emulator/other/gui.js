@@ -331,55 +331,28 @@ function registerGUIEvents() {
 
 	window.setTimeout(function(){
 		windowStacks[10].show();
-		DebugMemoryInit()
-	},1000);
-	
-	/*
-	$("#memory-next").click(function(){
-		var val = parseInt($("#memory-start").val(),16);
-		val += 16*16;
-		val = val.toString(16).toUpperCase();
-		while( val.length < 4 ) {
-			val = "0"+val;
-		}
-		$("#memory-start").val(val);
-		
-		var start = parseInt(val,16);
-		var length = 16;
-		var val_found = false;
-		
-		for( var y = 0; y < length; y++ ) {
-			for( var x = 0; x < 16; x++ ) {
-				if( gameboy.memory[start+(y*16)+x] ) {
-					val_found = true;
-				};
-			}
-		}
-		
-		if( !val_found ) {
-			window.setTimeout(function() { $("#memory-next").click(); }, 1 );
-		}
-		
-		return false;
-	});
+		ArrangeWindows();
 
-	
-	$("#memory-prev").click(function(){
-		var val = parseInt($("#memory-start").val(),16);
-		val -= 16*16;
-		if( val < 0 ) val = 0;
-		$("#memory-start").val( int2hex(val,4) )
-		return false;
-	});
-	
-	$("#memory-change-btn").click(function(){
-		if( gameboy && gameboy.memory ) {
-			var addr = parseInt($("#memory-change-addr").val(),16);
-			if( addr > 0 && addr < gameboy.memory.length ) {
-				gameboy.memory[addr] = $("#memort-change-val").val();
-			}
-		}
-	});*/
+		DebugMemoryInit();
+	},1000);
+
+	ArrangeWindows();
+
+	awakening.Init();
+
+}
+
+function ArrangeWindows() {
+
+	var $video = document.querySelector("#GameBoy");
+	$video.style['top'] = '0px';
+	$video.style['left'] = '0px';
+
+	var $memory = document.querySelector("#debug-rom-window");
+	$memory.style['top'] = $video.offsetHeight+'px';
+	$memory.style['left'] = '0px';
+	$memory.style['height'] = (window.innerHeight-$video.offsetHeight)+"px";
+
 }
 
 
@@ -420,9 +393,11 @@ function keyUp(event) {
 	}
 }
 function initPlayer() {
+	/*
 	document.getElementById("title").style.display = "none";
 	document.getElementById("port_title").style.display = "none";
 	document.getElementById("fullscreenContainer").style.display = "none";
+	*/
 }
 function fullscreenPlayer() {
 	if (GameBoyEmulatorInitialized()) {
