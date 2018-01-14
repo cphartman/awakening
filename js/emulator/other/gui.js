@@ -25,6 +25,7 @@ function windowingInitialize() {
 	windowStacks[8] = windowCreate("freeze_listing", false);
 	windowStacks[9] = windowCreate("save_importer", false);
 	windowStacks[10] = windowCreate("debug-rom-window", false);
+	windowStacks[11] = windowCreate("debug-execution-window", false);
 	mainCanvas = document.getElementById("mainCanvas");
 	fullscreenCanvas = document.getElementById("fullscreen");
 	try {
@@ -331,9 +332,11 @@ function registerGUIEvents() {
 
 	window.setTimeout(function(){
 		windowStacks[10].show();
+		windowStacks[11].show();
 		ArrangeWindows();
 
-		DebugMemoryInit();
+		DebugInit();
+
 	},1000);
 
 	ArrangeWindows();
@@ -352,6 +355,11 @@ function ArrangeWindows() {
 	$memory.style['top'] = $video.offsetHeight+'px';
 	$memory.style['left'] = '0px';
 	$memory.style['height'] = (window.innerHeight-$video.offsetHeight)+"px";
+
+	var $execute = document.querySelector("#debug-execution-window");
+	$execute.style['top'] = '0';
+	$execute.style['left'] = '400px';
+	$execute.style['height'] = "340px";
 
 }
 

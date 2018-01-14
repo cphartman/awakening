@@ -463,3 +463,34 @@ ul.menu > li:hover > ul.menu {
 #memory-start {
 	width: 100%;
 }
+
+.window { 
+	overflow: hidden;
+}
+
+#execution-table {
+	max-height: 400px;
+	min-width: 500px;
+	overflow-y: scroll;
+	font-family: monospace;
+	scroll-behavior: auto;
+}
+
+.op-wrapper {
+	position: absolute;
+	top: 25px;
+	left: 0;
+	width: 80%;
+	height: calc( 100% - 25px );
+}
+.op {
+	display: block;
+	height: 20px;
+	overflow: hidden;
+	width: 100%;
+}
+
+.op.program-counter {
+	background-color: #F00;
+	color: #FFF;
+}
