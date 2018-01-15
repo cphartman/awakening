@@ -7,6 +7,46 @@ function DebugInit() {
 
 	debug_execution = new DebugExecution();
 	debug_execution.Init();
+
+	debug_state = new DebugState();
+	debug_state.Init();
+}
+
+function DebugRefresh() {
+	debug_memory.Refresh();
+	debug_execution.Refresh();
+	debug_state.Refresh();
+}
+
+var DebugState = function() {
+	this.$window = false;
+	this.$table = false;
+	this.$stack = false;
+
+	this.Init = function() {
+		this.$window = document.querySelector("#debug-state-window");
+		this.$table = document.querySelector("#debug-state-table");
+		this.$stack = document.querySelector("#debug-state-stack");
+
+		this.Refresh();
+	}
+
+	this.Refresh = function() {
+		var table = "";
+		var stack = "";
+
+		var registerF = ((gameboy.FZero) ? 0x80 : 0) | ((gameboy.FSubtract) ? 0x40 : 0) | ((gameboy.FHalfCarry) ? 0x20 : 0) | ((gameboy.FCarry) ? 0x10 : 0);
+
+		table += "<div>af = "+int2hex(gameboy.registerA,2)+""+int2hex(registerF,2)+"</div>";
+		table += "<div>bc = "+int2hex(gameboy.registerB,2)+""+int2hex(gameboy.registerC,2)+"</div>";
+		table += "<div>de = "+int2hex(gameboy.registerD,2)+""+int2hex(gameboy.registerE,2)+"</div>";
+		table += "<div>hl = "+int2hex(gameboy.registersHL,4)+"</div>";
+		table += "<div>sp = "+int2hex(gameboy.stackPointer,4)+"</div>";
+		table += "<div>pc = "+int2hex(gameboy.programCounter,4)+"</div>";
+
+		this.$table.innerHTML = table;
+	}
+
 }
 
 var DebugExecution = function() {
@@ -144,6 +184,8 @@ var DebugExecution = function() {
 
 		this.$pause.addEventListener("click", this.domEvents['pauseClick'].bind(this));
 
+		this.$step.addEventListener("click", this.domEvents['stepClick'].bind(this));
+
 		this.$table.addEventListener("scroll", this.domEvents['tableScroll'].bind(this));
 	
 	}
@@ -153,11 +195,18 @@ var DebugExecution = function() {
 			pause();
 			this.JumpToCurrent();
 			debug_memory.Refresh();
+
+			DebugRefresh();
+
 			return false;
 		},
 		'playClick': function(){
 			run();
 			return false;
+		},
+		'stepClick': function(){
+			// TODO
+			return;
 		},
 		'tableScroll': function(){
 			this.currentAddress = Math.floor(this.$table.scrollTop/this.$table.scrollHeight * gameboy.memory.length);

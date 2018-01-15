@@ -27,6 +27,29 @@ function start(canvas, ROM) {
 	gameboy.start();
 	run();
 }
+
+function step() {
+	if (GameBoyEmulatorInitialized()) {
+		if (!GameBoyEmulatorPlaying()) {
+			gameboy.stopEmulator &= 1;
+			cout("Starting the iterator.", 0);
+			var dateObj = new Date();
+			gameboy.firstIteration = dateObj.getTime();
+			gameboy.iterations = 0;
+			gameboy.run();
+			pause();
+			DebugRefresh();
+			debug_execution.JumpToCurrent();
+		}
+		else {
+			cout("The GameBoy core is already running.", 1);
+		}
+	}
+	else {
+		cout("GameBoy core cannot run while it has not been initialized.", 1);
+	}
+}
+
 function run() {
 	if (GameBoyEmulatorInitialized()) {
 		if (!GameBoyEmulatorPlaying()) {
