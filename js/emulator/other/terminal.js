@@ -1,5 +1,5 @@
 function cout(message, colorIndex) {
-	console.log(message);
+	
 	return;
 
 	var terminal_output = document.querySelector("#terminal_output");
