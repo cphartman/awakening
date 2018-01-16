@@ -4187,6 +4187,7 @@ GameBoyCore.prototype.returnFromState = function (returnedFrom) {
 	this.CPUTicks = state[index++];
 	this.doubleSpeedShifter = state[index++];
 	this.memory = this.toTypedArray(state[index++], "uint8");
+	this.initMemoryProxy();
 	this.MBCRam = this.toTypedArray(state[index++], "uint8");
 	this.VRAM = this.toTypedArray(state[index++], "uint8");
 	this.currVRAMBank = state[index++];
@@ -4412,14 +4413,34 @@ GameBoyCore.prototype.start = function () {
 	this.initSound();	//Sound object initialization.
 	this.run();			//Start the emulation.
 }
+
+GameBoyCore.prototype.initMemoryProxy = function() {
+	this.realMemory = this.memory;
+
+	var proxy_handler = {
+		get: function(target, address) {
+			return gameboy.realMemory[address];
+		},
+
+		set: function(target, address, value, receiver) {
+			gameboy.realMemory[address] = value;
+			return 1;
+  		}
+	}
+	this.memory = new Proxy({},proxy_handler);
+}
+
 GameBoyCore.prototype.initMemory = function () {
 	//Initialize the RAM:
 	this.memory = this.getTypedArray(0x10000, 0, "uint8");
+
 	this.frameBuffer = this.getTypedArray(23040, 0xF8F8F8, "int32");
 	this.BGCHRBank1 = this.getTypedArray(0x800, 0, "uint8");
 	this.TICKTable = this.toTypedArray(this.TICKTable, "uint8");
 	this.SecondaryTICKTable = this.toTypedArray(this.SecondaryTICKTable, "uint8");
 	this.channel3PCM = this.getTypedArray(0x20, 0, "int8");
+
+	this.initMemoryProxy();
 }
 GameBoyCore.prototype.generateCacheArray = function (tileAmount) {
 	var tileArray = [];
@@ -7501,6 +7522,7 @@ GameBoyCore.prototype.memoryHighRead = function (address) {
 	return this.memoryHighReader[address](this, address);	//This seems to be faster than the usual if/else.
 }
 GameBoyCore.prototype.memoryReadJumpCompile = function () {
+
 	//Faster in some browsers, since we are doing less conditionals overall by implementing them in advance.
 	for (var index = 0x0000; index <= 0xFFFF; index++) {
 		if (index < 0x4000) {
