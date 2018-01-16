@@ -22,20 +22,38 @@ var DebugState = function() {
 	this.$window = false;
 	this.$table = false;
 	this.$stack = false;
+	this.stackTop = 0;
 
 	this.Init = function() {
-		this.$window = document.querySelector("#debug-state-window");
+		var height_px = document.querySelector("#execution-table").offsetHeight;
+
 		this.$table = document.querySelector("#debug-state-table");
 		this.$stack = document.querySelector("#debug-state-stack");
 
+		stack_row_height = 20;
+		stack_total_height = height_px;
+		stack_row_count = Math.floor(stack_total_height / stack_row_height);
+		stack_html = "";
+
+		for( var i = 0; i < stack_row_count; i++ ) {
+			stack_html += "<div class='stack stack-"+i+"'></div>";
+		}
+
+		this.$stack.innerHTML = stack_html;
+
+
+		this.JumpToCurrent();
+	}
+
+	this.JumpToCurrent = function() {
+		this.stackTop = gameboy.stackPointer - 6;
 		this.Refresh();
 	}
 
 	this.Refresh = function() {
-		var table = "";
-		var stack = "";
-
+		
 		var registerF = ((gameboy.FZero) ? 0x80 : 0) | ((gameboy.FSubtract) ? 0x40 : 0) | ((gameboy.FHalfCarry) ? 0x20 : 0) | ((gameboy.FCarry) ? 0x10 : 0);
+		var table = "";
 
 		table += "<div>af = "+int2hex(gameboy.registerA,2)+""+int2hex(registerF,2)+"</div>";
 		table += "<div>bc = "+int2hex(gameboy.registerB,2)+""+int2hex(gameboy.registerC,2)+"</div>";
@@ -45,6 +63,21 @@ var DebugState = function() {
 		table += "<div>pc = "+int2hex(gameboy.programCounter,4)+"</div>";
 
 		this.$table.innerHTML = table;
+
+		var $stackArr = document.querySelectorAll(".stack");
+		var stack_pointer = gameboy.stackPointer;
+		for( var i = 0; i < $stackArr.length; i++ ) {
+			var $stack = $stackArr[i];
+			var address = this.stackTop + i*2;
+			var mem = DebugReadMemory(address, 2);
+			$stack.innerHTML = int2hex(address,4) + ": " + int2hex(mem[1],2) + int2hex(mem[0],2);
+
+			if( address == stack_pointer ) {
+				$stack.classList.add('stack-pointer');
+			} else {
+				$stack.classList.remove('stack-pointer');
+			}
+		}
 	}
 
 }
@@ -162,16 +195,16 @@ var DebugExecution = function() {
 
 	this.Init = function() {
 		this.$window = document.querySelector('#debug-execution-window');
-		this.$table = document.querySelector('#execution-table');
 		this.$toolbar = document.querySelector("#exeution-toolbar");
+		this.$table = document.querySelector('#execution-table');
+		this.$heightbox = document.querySelector('#debug-execution-window .heightbox');
 
 		this.$play = document.querySelector("#execution-play");
 		this.$pause = document.querySelector("#execution-pause");
 		this.$step = document.querySelector("#execution-step");
 
+		this.$table.style['top'] = this.$toolbar.offsetHeight+"px";
 		this.$table.style['height'] = (this.$window.offsetHeight - this.$toolbar.offsetHeight)+"px";
-		this.$table.style['height'] = (this.$window.offsetHeight - this.$toolbar.offsetHeight)+"px";
-
 
 		this.InitTable();
 		this.Refresh();
@@ -194,9 +227,9 @@ var DebugExecution = function() {
 		'pauseClick': function(){
 			pause();
 			this.JumpToCurrent();
-			debug_memory.Refresh();
+			debug_state.JumpToCurrent();
 
-			DebugRefresh();
+			debug_memory.Refresh();
 
 			return false;
 		},
@@ -228,9 +261,6 @@ var DebugExecution = function() {
 		}
 		table_html += "</div>"
 
-		var height = gameboy.memory.length * row_height;
-		table_html += "<div class='heightbox' style='height: "+height+"px'></div>";
-		
 		this.$table.innerHTML = table_html;
 
 		this.JumpToCurrent();

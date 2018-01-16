@@ -26,7 +26,6 @@ function windowingInitialize() {
 	windowStacks[9] = windowCreate("save_importer", false);
 	windowStacks[10] = windowCreate("debug-rom-window", false);
 	windowStacks[11] = windowCreate("debug-execution-window", false);
-	windowStacks[12] = windowCreate("debug-state-window", false);
 	mainCanvas = document.getElementById("mainCanvas");
 	fullscreenCanvas = document.getElementById("fullscreen");
 	try {
@@ -334,7 +333,6 @@ function registerGUIEvents() {
 	window.setTimeout(function(){
 		windowStacks[10].show();
 		windowStacks[11].show();
-		windowStacks[12].show();
 		ArrangeWindows();
 
 		DebugInit();
@@ -362,10 +360,7 @@ function ArrangeWindows() {
 	$execute.style['top'] = '0';
 	$execute.style['left'] = '400px';
 	$execute.style['height'] = "340px";
-
-	var $state = document.querySelector("#debug-state-window");
-	$state.style['top'] = '340px';
-	$state.style['left'] = '550px';
+	$execute.style['width'] = '400px';
 }
 
 

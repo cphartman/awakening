@@ -469,27 +469,42 @@ ul.menu > li:hover > ul.menu {
 }
 
 #execution-table {
-	max-height: 400px;
-	min-width: 500px;
+	top: 0;
+	left: 0;
+	width: calc( 100% - 100px );
+	height: 100%;
 	overflow-y: scroll;
 	font-family: monospace;
-	scroll-behavior: auto;
+	overflow: hidden;
+	position: absolute;
 }
 
+#debug-state-wrapper {
+	width: 100px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 100%;
+}
 .op-wrapper {
 	position: absolute;
-	top: 25px;
+	top: 0px;
 	left: 0;
-	width: 80%;
-	height: calc( 100% - 25px );
+	width: 100%;
+	height: 100%;
+	padding: 5px;
+	box-sizing: border-box;
 }
+.stack,
 .op {
+	font-family: monospace;
 	display: block;
 	height: 20px;
 	overflow: hidden;
 	width: 100%;
 }
 
+.stack.stack-pointer,
 .op.program-counter {
 	background-color: #F00;
 	color: #FFF;
