@@ -189,7 +189,9 @@ var DebugExecution = function() {
 		0xc4: 2,
 		0xcc: 2,
 		0xd4: 2,
-		0xdc: 2
+		0xdc: 2,
+
+		0xfe: 2
 
 	};
 
@@ -238,7 +240,21 @@ var DebugExecution = function() {
 			return false;
 		},
 		'stepClick': function(){
-			// TODO
+			
+			// Play 1 frame
+			gameboy.stopEmulator &= 1;
+			cout("Starting the iterator.", 0);
+			var dateObj = new Date();
+			gameboy.firstIteration = gameboy.lastIteration = dateObj.getTime();
+			gameboy.iterations = 0;
+			gameboy.debug_step = 1;
+			gameboy.run();
+
+			// Pause
+			gameboy.stopEmulator |= 2;
+
+			this.JumpToCurrent();
+			debug_state.JumpToCurrent();
 			return;
 		},
 		'tableScroll': function(){
