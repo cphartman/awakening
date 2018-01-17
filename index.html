@@ -9,26 +9,31 @@
         windowingInitialize();
     });
         </script>
-        <script type="text/javascript" src="js/emulator/other/windowStack.js"></script>
-        <script type="text/javascript" src="js/emulator/other/terminal.js"></script>
-        <script type="text/javascript" src="js/emulator/other/gui.js"></script>
-        <script type="text/javascript" src="js/emulator/other/debugger.js"></script>
-        <script type="text/javascript" src="js/emulator/other/base64.js"></script>
-        <script type="text/javascript" src="js/emulator/other/json2.js"></script>
-        <script type="text/javascript" src="js/emulator/other/swfobject.js"></script>
-        <script type="text/javascript" src="js/emulator/other/resampler.js"></script>
-        <script type="text/javascript" src="js/emulator/other/XAudioServer.js"></script>
-        <script type="text/javascript" src="js/emulator/other/resize.js"></script>
-        <script type="text/javascript" src="js/emulator/GameBoyCore.js"></script>
-        <script type="text/javascript" src="js/emulator/GameBoyIO.js"></script>
+        <!-- Require Dependencies -->
+        <script type="text/javascript" src="js/lib/windowStack.js"></script>
+        <script type="text/javascript" src="js/lib/terminal.js"></script>
+        <script type="text/javascript" src="js/lib/gui.js"></script>
+        <script type="text/javascript" src="js/lib/debugger.js"></script>
+        <script type="text/javascript" src="js/lib/base64.js"></script>
+        <script type="text/javascript" src="js/lib/json2.js"></script>
+        <script type="text/javascript" src="js/lib/swfobject.js"></script>
+        <script type="text/javascript" src="js/lib/resampler.js"></script>
+        <script type="text/javascript" src="js/lib/XAudioServer.js"></script>
+        <script type="text/javascript" src="js/lib/resize.js"></script>
         
+        <!-- Require Emulation Core -->
+        <script type="text/javascript" src="js/emulation/GameBoyCore.js"></script>
+
+        <!-- Require Awakening Layer -->
+        <script type="text/javascript" src="js/awakening/awakening.js"></script>
+        <script type="text/javascript" src="js/awakening/GameBoyIO.js"></script>
+        
+        <!-- Load Emulation State -->
         <script type="text/javascript" src="assets/rom/la_rom.js"></script>
         <script type="text/javascript" src="assets/rom/la_savestate.js"></script>
-        
-        <script type="text/javascript" src="js/awakening/awakening.js"></script>
                 
 
-        <title>GameBoy Online</title>
+        <title>Awakening</title>
     </head>
     <body>
         <div id="GameBoy" class="window">
