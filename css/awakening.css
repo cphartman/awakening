@@ -1,0 +1,108 @@
+
+
+#GameBoy {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#GameBoy,
+#mainCanvas {
+	width: 160px;
+	height: 144px;
+}
+
+
+/* Debug State Window */
+.debug-state-window {
+	position: absolute;
+	top: 144px;
+	left: 0;
+	height: calc( 100% - 144px );
+	width: 160px;
+	font-family: monospace;
+}
+
+.debug-state-window .debug-registers {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 125px;
+}
+
+.debug-state-window .debug-stack {
+	position: absolute;
+	top: 125px;
+	left: 0;
+	width: 100%;
+	height: calc( 100% - 125px);
+}
+.debug-state-window .register-row {
+	height: 20px;
+}
+
+.debug-state-window .register-key {
+	display: inline-block;
+	width: 20%;
+}
+
+.debug-state-window .register-value {
+	display: inline-block;
+}
+
+.debug-state-window .stack-row {
+	height: 20px;
+	line-height: 20px;
+}
+
+.debug-state-window .stack-row.current {
+	background-color: #F00;
+	color: #FFF;
+}
+
+.debug-state-window .stack-address {
+	width: 20%;
+	display: inline-block;
+}
+
+.debug-state-window .stack-values,
+.debug-state-window .stack-value {
+	display: inline-block;
+}
+
+
+/* Debug Execution Window*/
+.debug-execution-window {
+	position: absolute;
+	top: 0;
+	left: 160px;
+	height: 50%;
+	width: 400px;
+}
+
+.execution-row {
+	height: 20px;
+	line-height: 20px;
+}
+
+.execution-label,
+.execution-address,
+.execution-opcode,
+.execution-instruction {
+	display: inline-block;
+}
+
+.execution-label,
+.execution-address,
+.execution-opcode {
+	width: 20%;
+}
+
+
+.debug-memory-window {
+	top: 50%;
+	left: 160px;
+	height: 150px;
+	width: 400px;
+}

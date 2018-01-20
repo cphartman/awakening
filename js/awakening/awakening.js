@@ -1,19 +1,39 @@
-awakening = {
-	_settings: {
 
-	},
+Awakening = function(){
+	this.emulator = false,
+	this.$canvas = false;
+	this.debugger = false;
 
-	Init: function() {
+	this.Init = function() {
+		this.$canvas = document.querySelector("#mainCanvas");
 
-		if( !this.IsReady() ) {
-			window.setTimeout(this.Init.bind(this), 500);
-		}
-
-		this.LoadRom();
+		this.InitEmulator();
 		this.LoadSaveState();
+		this.InitInput();
+		//DebugInit(this.emulator);
 	},
 
-	IsReady: function() {
+	this.InitEmulator = function() {
+		var rom = atob(la_rom);
+		this.emulator = new GameBoyCore(this.$canvas, rom);
+		
+		// Global reference that should be removed
+		gameboy = this.emulator;
+
+		this.emulator.start();
+
+		// Create debugging hooks
+		this.debugger = new Debugger(this.emulator);
+		var $state_window = document.querySelector(".debug-state-window");
+		this.debugger.InitStateWindow($state_window);
+
+		var $execution_window = document.querySelector(".debug-execution-window");
+		this.debugger.InitExecutionWindow($execution_window);
+
+		run();
+	}
+
+	this.IsReady = function() {
 
 		if( !la_rom ) {
 			return false;
@@ -30,12 +50,32 @@ awakening = {
 		return true;
 	},
 
-	LoadRom: function() {
-		initPlayer();
-		start(mainCanvas, base64_decode(la_rom));
-	},
+	this.InitInput = function() {
+		document.addEventListener("keydown", keyDown);
+		document.addEventListener("keyup", function (event) {
+			keyUp(event);
+		});
+	}
 
-	LoadSaveState: function() {
-		gameboy.returnFromState(la_savestate);
+	this.LoadSaveState = function() {
+		this.emulator.returnFromState(la_savestate);
+
+		window.setTimeout(function(){
+			this.debugger.JumpToCurrent();
+		}.bind(this),100);
 	}
 }
+
+// Bootstrap
+var awakening = false;
+function ready(fn) {
+  if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading"){
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}
+ready(function(){
+	awakening = new Awakening();
+	awakening.Init();
+});

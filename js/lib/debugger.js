@@ -1,48 +1,61 @@
-var debug_memory = false;
-var debug_execution = false;
+Debugger = function(emulator_core) {
 
-function DebugInit() {
-	debug_memory = new DebugMemory();
-	debug_memory.Init();
+	// Available debugger tools
+	this.debug_memory = false;
+	this.debug_state = false;
+	this.debug_memory = false;
 
-	debug_execution = new DebugExecution();
-	debug_execution.Init();
-
-	debug_state = new DebugState();
-	debug_state.Init();
-}
-
-function DebugRefresh() {
-	debug_memory.Refresh();
-	debug_execution.Refresh();
-	debug_state.Refresh();
-}
-
-var DebugState = function() {
-	this.$window = false;
-	this.$table = false;
-	this.$stack = false;
-	this.stackTop = 0;
+	this.emulationCore = emulator_core;
 
 	this.Init = function() {
-		var height_px = document.querySelector("#execution-table").offsetHeight;
 
-		this.$table = document.querySelector("#debug-state-table");
-		this.$stack = document.querySelector("#debug-state-stack");
+	};
 
-		stack_row_height = 20;
-		stack_total_height = height_px;
-		stack_row_count = Math.floor(stack_total_height / stack_row_height);
-		stack_html = "";
+	this.InitMemoryWindow = function($window){
+		this.debug_memory = new DebugMemory($window, this.emulationCore);
+		this.debug_memory.Init();
+	};
 
-		for( var i = 0; i < stack_row_count; i++ ) {
-			stack_html += "<div class='stack stack-"+i+"'></div>";
-		}
+	this.InitExecutionWindow = function($window) {
+		this.debug_execution = new DebugExecution($window, this.emulationCore);
+		this.debug_execution.Init();
+	}
 
-		this.$stack.innerHTML = stack_html;
+	this.InitStateWindow = function($window) {
+		this.debug_state = new DebugState($window, this.emulationCore);
+		this.debug_state.Init();
+	}
 
+	this.Refresh = function() {
+		//debug_memory.Refresh();
+		this.debug_execution.Refresh();
+		this.debug_state.Refresh();
+	}
 
-		this.JumpToCurrent();
+	this.JumpToCurrent = function() {
+		this.debug_state.JumpToCurrent();
+		this.debug_execution.JumpToCurrent();
+	}
+}
+
+var DebugState = function($window, emulation_core) {
+	this.$window = $window;
+	this.stackTop = 0;
+	this.emulationCore = emulation_core;
+	this.view = false;
+
+	this.Init = function() {
+		
+		this.view = new Vue({
+		  el: this.$window,
+		  data: {
+		  	register_rows: [],
+		  	stack_rows: [],
+		  }
+		});
+
+		this.Refresh();
+
 	}
 
 	this.JumpToCurrent = function() {
@@ -53,40 +66,63 @@ var DebugState = function() {
 	this.Refresh = function() {
 		
 		var registerF = ((gameboy.FZero) ? 0x80 : 0) | ((gameboy.FSubtract) ? 0x40 : 0) | ((gameboy.FHalfCarry) ? 0x20 : 0) | ((gameboy.FCarry) ? 0x10 : 0);
-		var table = "";
 
-		table += "<div>af = "+int2hex(gameboy.registerA,2)+""+int2hex(registerF,2)+"</div>";
-		table += "<div>bc = "+int2hex(gameboy.registerB,2)+""+int2hex(gameboy.registerC,2)+"</div>";
-		table += "<div>de = "+int2hex(gameboy.registerD,2)+""+int2hex(gameboy.registerE,2)+"</div>";
-		table += "<div>hl = "+int2hex(gameboy.registersHL,4)+"</div>";
-		table += "<div>sp = "+int2hex(gameboy.stackPointer,4)+"</div>";
-		table += "<div>pc = "+int2hex(gameboy.programCounter,4)+"</div>";
+		this.view.register_rows = [
+			{
+				register: "AF",
+				value: int2hex(gameboy.registerA,2)+int2hex(registerF,2),
+			},{
+				register: "BC",
+				value: int2hex(gameboy.registerB,2)+int2hex(gameboy.registerC,2),
+			},{
+				register: "DE",
+				value: int2hex(gameboy.registerD,2)+int2hex(gameboy.registerE,2),
+			},{
+				register: "HL",
+				value: int2hex(gameboy.registersHL,4),
+			},{
+				register: "SP",
+				value: int2hex(gameboy.stackPointer,4),
+			},{
+				register: "PC",
+				value: int2hex(gameboy.programCounter,4),
+			},
+		];
 
-		this.$table.innerHTML = table;
 
-		var $stackArr = document.querySelectorAll(".stack");
-		var stack_pointer = gameboy.stackPointer;
-		for( var i = 0; i < $stackArr.length; i++ ) {
-			var $stack = $stackArr[i];
+		var row_height = 20;
+		var window_height = 800;//this.$window.offsetHeight;
+		var register_height = 200;//this.$window.querySelector(".debug-state-window").offsetHeight;
+		var stack_height = document.querySelector(".debug-stack").offsetHeight;
+		//window_height - register_height
+		row_count = Math.floor(stack_height / row_height);
+		
+		for( var i = 0; i < row_count; i++ ) {
 			var address = this.stackTop + i*2;
 			var mem = DebugReadMemory(address, 2);
-			$stack.innerHTML = int2hex(address,4) + ": " + int2hex(mem[1],2) + int2hex(mem[0],2);
 
-			if( address == stack_pointer ) {
-				$stack.classList.add('stack-pointer');
-			} else {
-				$stack.classList.remove('stack-pointer');
-			}
+			this.view.stack_rows[i] = {
+				label: "STACK",
+				address: int2hex(address,4),
+				current: (address == gameboy.stackPointer ),
+				values	: [
+					int2hex(mem[1],2),
+					int2hex(mem[0],2)
+					]
+			};
 		}
+
+		return;
 	}
 
 }
 
-var DebugExecution = function() {
+var DebugExecution = function($window, emulation_core) {
+	this.$window = $window;
+	this.addressTop = 0;
+	this.emulationCore = emulation_core;
+	this.view = false;
 
-	this.currentAddress = 0;
-
-	this.$window = false;
 	this.$table = false;
 	this.$toolbar = false;
 	this.opcodes = ["NOP","LD BC, nn","LD (BC), A","INC BC","INC B","DEC B","LD B, n","RLCA","LD (nn), SP",
@@ -195,23 +231,25 @@ var DebugExecution = function() {
 
 	};
 
-	this.Init = function() {
-		this.$window = document.querySelector('#debug-execution-window');
-		this.$toolbar = document.querySelector("#exeution-toolbar");
-		this.$table = document.querySelector('#execution-table');
-		this.$heightbox = document.querySelector('#debug-execution-window .heightbox');
+	this.Init = function(){
 
 		this.$play = document.querySelector("#execution-play");
 		this.$pause = document.querySelector("#execution-pause");
 		this.$step = document.querySelector("#execution-step");
 
-		this.$table.style['top'] = this.$toolbar.offsetHeight+"px";
-		this.$table.style['height'] = (this.$window.offsetHeight - this.$toolbar.offsetHeight)+"px";
+		this.view = new Vue({
+		  el: this.$window,
+		  data: {
+		  	op_rows: [],
+		  }
+		});
 
-		this.InitTable();
+		this.$window = this.view.$el;
+
+
 		this.Refresh();
 
-		this.BindEvents();
+		//this.BindEvents();
 	};
 
 	this.BindEvents = function() {
@@ -264,41 +302,25 @@ var DebugExecution = function() {
 		}
 	}; 
 
-
-
-	this.InitTable = function() {
-
-		var row_height = 20;
-		var row_count = Math.floor(this.$table.offsetHeight / row_height);
-
-		var table_html = "<div class='op-wrapper'>";
-		for( var i = 0; i < row_count; i++ ) {
-			table_html += "<div class='op op-"+i+"'>"+i+"</div>";
-		}
-		table_html += "</div>"
-
-		this.$table.innerHTML = table_html;
-
-		this.JumpToCurrent();
-	}
-
 	this.JumpToCurrent = function() {
-		this.currentAddress = gameboy.programCounter - 5;
-		
+		this.currentAddress = emulation_core.programCounter - 5;
 		this.Refresh();
 	}
 
 	this.Refresh = function() {
 		
 		var row_height = 20;
-		var program_counter = gameboy.programCounter;
-		var address = this.currentAddress;
-		var $op_list = document.querySelectorAll(".op");
+		var program_counter = this.emulationCore.programCounter;
+		var address = this.addressTop;
+
+		var window_height = this.$window.offsetHeight;
+		row_count = Math.floor(window_height / row_height);
 
 		// Setup row data
-		for( var row_index = 0; row_index < $op_list.length; row_index++ ) {
+		this.view.op_rows = [];
+		for( var row_index = 0; row_index < row_count; row_index++ ) {
 			var code = DebugReadMemory(address);
-			var op = this.opcodes[code];
+			var instruction = this.opcodes[code];
 			var code_str = int2hex(code,2);
 			var parameter_total = 0;
 
@@ -312,15 +334,11 @@ var DebugExecution = function() {
 				}
 			}
 
-			// Draw row from data
-			var $row = $op_list[row_index];
-			$row.innerHTML = int2hex(address,4) + ": " + code_str + " => " + op;
-
-			// Check if on a special row
-			if( program_counter == address ) {
-				$row.classList.add('program-counter');
-			} else {
-				$row.classList.remove('program-counter');
+			this.view.op_rows[row_index] = {
+				label: "RAM",
+				address: int2hex(address,4),
+				opcode: code_str,
+				instruction: instruction
 			}
 
 			address += parameter_total;

@@ -13,6 +13,7 @@ var keyZones = [
 	["start", [13]]
 ];
 function windowingInitialize() {
+	return;
 	cout("windowingInitialize() called.", 0);
 	windowStacks[0] = windowCreate("GameBoy", true);
 	windowStacks[1] = windowCreate("terminal", false);
@@ -329,19 +330,6 @@ function registerGUIEvents() {
 		windowStacks[10].show();
 		DebugMemoryInit();
 	});
-
-	window.setTimeout(function(){
-		windowStacks[10].show();
-		windowStacks[11].show();
-		ArrangeWindows();
-
-		DebugInit();
-
-	},500);
-
-	ArrangeWindows();
-
-	awakening.Init();
 
 }
 

@@ -9555,4 +9555,7 @@ GameBoyCore.prototype.getTypedArray = function (length, defaultValue, numberType
 		}
 	}
 	return arrayHandle;
-}
+};
+
+
+var cout = function(){};
