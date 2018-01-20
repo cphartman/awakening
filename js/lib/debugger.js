@@ -122,6 +122,7 @@ var DebugExecution = function($window, emulation_core) {
 	this.addressTop = 0;
 	this.emulationCore = emulation_core;
 	this.view = false;
+	this.scrollbar = false;;
 
 	this.$table = false;
 	this.$toolbar = false;
@@ -244,7 +245,13 @@ var DebugExecution = function($window, emulation_core) {
 		  }
 		});
 
+		// Vue destroys the original window dom element, restore the reference
 		this.$window = this.view.$el;
+
+		var row_count = this.emulationCore.memory.length;
+		this.scrollbar = new Scrollbar();
+		this.scrollbar.Init(this.$window, row_count);
+		this.scrollbar.callback = this.domEvents['scroll'].bind(this);
 
 
 		this.Refresh();
@@ -257,10 +264,7 @@ var DebugExecution = function($window, emulation_core) {
 
 		this.$pause.addEventListener("click", this.domEvents['pauseClick'].bind(this));
 
-		this.$step.addEventListener("click", this.domEvents['stepClick'].bind(this));
-
-		this.$table.addEventListener("scroll", this.domEvents['tableScroll'].bind(this));
-	
+		this.$step.addEventListener("click", this.domEvents['stepClick'].bind(this));	
 	}
 
 	this.domEvents = {
@@ -295,15 +299,16 @@ var DebugExecution = function($window, emulation_core) {
 			debug_state.JumpToCurrent();
 			return;
 		},
-		'tableScroll': function(){
-			this.currentAddress = Math.floor(this.$table.scrollTop/this.$table.scrollHeight * gameboy.memory.length);
+		'scroll': function(){
+			this.addressTop = this.scrollbar.Get();
 			this.Refresh();
 			return false;
 		}
 	}; 
 
 	this.JumpToCurrent = function() {
-		this.currentAddress = emulation_core.programCounter - 5;
+		this.addressTop = this.emulationCore.programCounter - 5;
+		this.scrollbar.Set(this.addressTop);
 		this.Refresh();
 	}
 
@@ -338,7 +343,8 @@ var DebugExecution = function($window, emulation_core) {
 				label: "RAM",
 				address: int2hex(address,4),
 				opcode: code_str,
-				instruction: instruction
+				instruction: instruction,
+				current: (program_counter == address),
 			}
 
 			address += parameter_total;

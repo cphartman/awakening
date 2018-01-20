@@ -86,6 +86,11 @@
 	line-height: 20px;
 }
 
+.execution-row.current {
+	background-color: #F00;
+	color: #FFF;
+}
+
 .execution-label,
 .execution-address,
 .execution-opcode,
