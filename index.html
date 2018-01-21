@@ -34,7 +34,15 @@
         <div id="GameBoy" class="window">
             <canvas id="mainCanvas"></canvas>
         </div>
-        <div id="debug-memory-window" class="window"></div>
+
+        <div class="debug-memory-window" class="window">
+            <div class='memory-row' v-for="row in memory_rows" >
+                <div class='memory-address'>{{row.address}}</div>
+                <div class='memory-values'>
+                    <div class='memory-value' v-for="value in row.values">{{value}}</div>
+                </div>
+            </div>
+        </div>
         
         <div class="debug-state-window" class="window">
             <div class='debug-registers'>
@@ -48,7 +56,7 @@
                 <div class='stack-row' v-for="row in stack_rows"  v-bind:class="{ current: row.current }">
                     <div class='stack-address'>{{row.address}}</div>
                     <div class='stack-values' v-for="value in row.values">
-                        <div class='memory-value'>{{value}}</div>
+                        <div class='stack-value'>{{value}}</div>
                     </div>
                 </div>
             </div>
@@ -56,7 +64,9 @@
 
          <div class='debug-execution-window'>
             <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current }">
+                <!--
                 <div class='execution-label'>{{row.label}}</div>
+                -->
                 <div class='execution-address'>{{row.address}}</div>
                 <div class='execution-opcode'>{{row.opcode}}</div>
                 <div class='execution-instruction'>{{row.instruction}}</div>

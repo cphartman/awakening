@@ -14,6 +14,11 @@ Debugger = function(emulator_core) {
 	this.InitMemoryWindow = function($window){
 		this.debug_memory = new DebugMemory($window, this.emulationCore);
 		this.debug_memory.Init();
+
+		var loop = function(){
+			this.debug_memory.Refresh();
+		};
+		window.setInterval(loop.bind(this),10);
 	};
 
 	this.InitExecutionWindow = function($window) {
@@ -27,7 +32,7 @@ Debugger = function(emulator_core) {
 	}
 
 	this.Refresh = function() {
-		//debug_memory.Refresh();
+		this.debug_memory.Refresh();
 		this.debug_execution.Refresh();
 		this.debug_state.Refresh();
 	}
@@ -302,7 +307,6 @@ var DebugExecution = function($window, emulation_core) {
 		'scroll': function(){
 			this.addressTop = this.scrollbar.Get();
 			this.Refresh();
-			return false;
 		}
 	}; 
 
@@ -363,8 +367,9 @@ var DebugReadMemory = function(start, length) {
 	}
 
 	for( var i = 0; i < length; i++ ) {
-		if( i < gameboy.memory.length ) {
-			results[i] = gameboy.memory[start+i];
+		var address = start + i;
+		if( address < gameboy.memory.length ) {
+			results[i] = gameboy.memory[address];
 		} else {
 			results[i] = 0;
 		}
@@ -378,13 +383,14 @@ var DebugReadMemory = function(start, length) {
 	}
 };
 
-var DebugMemory = function() {
+var DebugMemory = function($window, emulation_core) {
 	this.row_width = 16;
 	this.max = 0x10000;
 
-	this.$window = false;
-	this.$table = false;
-	this.$toolbar = false;
+	this.$window = $window;
+	this.emulationCore = emulation_core;
+	this.view = false;
+	this.addressTop = 0;
 
 	this.HARDWARE_MEMORY_RANGES = [{
 			end: 0x4000,
@@ -419,86 +425,55 @@ var DebugMemory = function() {
 	}];
 
 	this.Init = function() {
-		var rows = this.max / this.row_width;
-		var out = "";
-		for( var r = 0; r < rows; r++ ) {
 
-			var row_address = r*16;
-			var row = "";
-			row += "<div class='memory-row memory-row-"+row_address+"'>";
+		this.view = new Vue({
+		  el: this.$window,
+		  data: {
+		  	memory_rows: [],
+		  }
+		});
 
-			var hide_row = false;
-			for( var i = 0; i<=this.HARDWARE_MEMORY_RANGES.length; i++) {
+		// Vue destroys the original window dom element, restore the reference
+		this.$window = this.view.$el;
 
-				if( row_address < this.HARDWARE_MEMORY_RANGES[i].end ) {
-					row += "<span class='memory-row-label'>"+this.HARDWARE_MEMORY_RANGES[i].label+" : </span>";		
-					hide_row = this.HARDWARE_MEMORY_RANGES[i].hide;
-					break;
-				}
-			}
-
-			if( hide_row ) {
-				continue;
-			}
-
-			row += "<span class='memory-row-start'>"+int2hex(row_address,5)+"</span>";
-			row += "<span class='memory-row-data'>";	
-
-			for( var x = 0; x < this.row_width; x++ ) {
-				row += "&nbsp;..";
-			}
-
-			row += "</span'>";	
-
-			row += "</div>";
-
-			out += row;
-		}
-
-		
-		this.$window = document.querySelector("#debug-rom-window");
-		this.$table = document.querySelector("#memory-out");
-		this.$toolbar = document.querySelector("#memory-toolbar");
-
-		this.$table.style['height'] = (window.innerHeight - this.$window.offsetTop - this.$toolbar.offsetHeight)+"px";
-
-		this.$table.innerHTML = out;
-		
+		var row_count = this.emulationCore.memory.length / 16;
+		this.scrollbar = new Scrollbar();
+		this.scrollbar.Init(this.$window, row_count);
+		this.scrollbar.callback = this.domEvents['scroll'].bind(this);
 
 		this.Refresh();
 	}
 
-	this.Refresh = function(start, end) {
+	this.Refresh = function() {
+
+		var row_height = 20;
 		
-		if( typeof start == 'undefined' ) { start = 0; }
-		if( typeof end == 'undefined' ) { end = gameboy.memory.length; }
+		var window_height = this.$window.offsetHeight;
+		row_count = Math.floor(window_height / row_height);
 
-		// Round to the nearest row
-		start = start - start%this.row_width;
+		
+		this.view.memory_rows = [];
+		for( var i = 0; i < row_count; i++ ) {
 
-		// Update each memory row
-		for( var i = start; i < end; i+=this.row_width ) {
-			//console.log("Updating row: "+int2hex(i,5));
+			var address = this.addressTop + i*16;
 
-			var $row_data = document.querySelector("#memory-out .memory-row-"+i+" .memory-row-data");
+			this.view.memory_rows[i] = {
+				address: int2hex(address,4),
+				values: []
+			}
 
-			if( $row_data ) {
-				var out = "";
-				for( var x = 0; x < this.row_width; x++ ) {
-					val = gameboy.memory[i+x];
-					out += "&nbsp;"+int2hex(val,2);
-				}
-				$row_data.innerHTML = out;
+			for( var m = 0; m < 16; m++ ) {
+				var value = DebugReadMemory(address+m);
+				this.view.memory_rows[i].values[m] = int2hex(value,2);
 			}
 		}
 	}
 
-	this.StartMonitor = function() {
-
-	}
-
-	this.StopMonitor = function() {
-
+	this.domEvents = {
+		'scroll': function() {
+			this.addressTop = this.scrollbar.Get() * 16;
+			this.Refresh();
+		}
 	}
 
 	return this;

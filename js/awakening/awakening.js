@@ -30,6 +30,9 @@ Awakening = function(){
 		var $execution_window = document.querySelector(".debug-execution-window");
 		this.debugger.InitExecutionWindow($execution_window);
 
+		var $memory_window = document.querySelector(".debug-memory-window");
+		this.debugger.InitMemoryWindow($memory_window);
+
 		run();
 	}
 

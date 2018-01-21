@@ -78,7 +78,7 @@
 	top: 0;
 	left: 160px;
 	height: 50%;
-	width: 400px;
+	width: 450px;
 }
 
 .execution-row {
@@ -110,4 +110,28 @@
 	left: 160px;
 	height: 150px;
 	width: 400px;
+}
+
+/* Debug Memory Window */
+.debug-memory-window {
+	position: absolute;
+	height: 50%;
+	top: 50%;
+	width: 450px;
+	font-family: monospace;
+}
+
+.memory-row {
+	height: 20px;
+	line-height: 20px;
+}
+
+.memory-values,
+.memory-address {
+	display: inline-block;
+}
+
+.memory-value {
+	display: inline-block;
+	padding: 0 5px;
 }
