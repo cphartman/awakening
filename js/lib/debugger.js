@@ -206,7 +206,6 @@ var DebugExecution = function($window, emulation_core) {
 	}
 
 	this.Refresh = function() {
-		
 		var row_height = 20;
 		var program_counter = this.emulationCore.programCounter;
 		var address = this.addressTop;
@@ -240,7 +239,15 @@ var DebugExecution = function($window, emulation_core) {
 				current: (program_counter == address),
 			}
 
-			address += parameter_total;
+			// Increment row address for each parameter
+			for( var p = 0; p < parameter_total; p++ ) {
+				if( address + p == program_counter ) {
+					break;
+				} else {
+					address++;
+				}
+			}
+
 			address++;
 		}
 	}
@@ -281,7 +288,6 @@ var DebugMemory = function($window, emulation_core) {
 		
 		var window_height = this.$window.offsetHeight;
 		row_count = Math.floor(window_height / row_height);
-
 		
 		this.view.memory_rows = [];
 		for( var i = 0; i < row_count; i++ ) {
