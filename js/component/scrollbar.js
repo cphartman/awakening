@@ -5,6 +5,7 @@ var Scrollbar = function() {
 	this.$el = false;
 	this.$window = false;
 	this.rowHeight = 20;
+	this.preventCallback = false;
 
 	this.Init = function($window, height) {
 		this.height = height;
@@ -21,6 +22,10 @@ var Scrollbar = function() {
 	}
 
 	this.scrollEvent = function() {
+		if( this.preventCallback ) {
+			this.preventCallback = false;
+			return;
+		}
 		if( this.callback ) {
 			this.callback.apply();
 		}
@@ -32,6 +37,9 @@ var Scrollbar = function() {
 	}
 
 	this.Set = function(value) {
+		// Prevent scroll event triggering
+		this.preventCallback = true;
+
 		this.value = value*this.rowHeight;
 		this.$el.scrollTop = this.value;
 	}
