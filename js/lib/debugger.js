@@ -150,24 +150,21 @@ var DebugExecution = function($window, emulation_core) {
 
 		this.Refresh();
 
-		//this.BindEvents();
+		this.BindEvents();
 	};
 
 	this.BindEvents = function() {
-		this.$play.addEventListener("click", this.domEvents['playClick'].bind(this));
+		this.$window.querySelector(".execution-play").addEventListener("click", this.domEvents['playClick'].bind(this));
 
-		this.$pause.addEventListener("click", this.domEvents['pauseClick'].bind(this));
+		this.$window.querySelector(".execution-pause").addEventListener("click", this.domEvents['pauseClick'].bind(this));
 
-		this.$step.addEventListener("click", this.domEvents['stepClick'].bind(this));	
+		this.$window.querySelector(".execution-step").addEventListener("click", this.domEvents['stepClick'].bind(this));	
 	}
 
 	this.domEvents = {
 		'pauseClick': function(){
 			pause();
-			this.JumpToCurrent();
-			debug_state.JumpToCurrent();
-
-			debug_memory.Refresh();
+			awakening.debugger.JumpToCurrent();
 
 			return false;
 		},
@@ -178,19 +175,19 @@ var DebugExecution = function($window, emulation_core) {
 		'stepClick': function(){
 			
 			// Play 1 frame
-			gameboy.stopEmulator &= 1;
+			this.emulationCore.stopEmulator &= 1;
+			
 			cout("Starting the iterator.", 0);
 			var dateObj = new Date();
-			gameboy.firstIteration = gameboy.lastIteration = dateObj.getTime();
-			gameboy.iterations = 0;
-			gameboy.debug_step = 1;
-			gameboy.run();
+			this.emulationCore.firstIteration = gameboy.lastIteration = dateObj.getTime();
+			this.emulationCore.iterations = 0;
+			this.emulationCore.debug_step = 1;
+			this.emulationCore.run();
 
 			// Pause
-			gameboy.stopEmulator |= 2;
+			this.emulationCore.stopEmulator |= 2;
 
-			this.JumpToCurrent();
-			debug_state.JumpToCurrent();
+			awakening.debugger.JumpToCurrent();
 			return;
 		},
 		'scroll': function(){
@@ -240,7 +237,7 @@ var DebugExecution = function($window, emulation_core) {
 			}
 
 			// Increment row address for each parameter
-			for( var p = 0; p < parameter_total; p++ ) {
+			for( var p = 1; p <= parameter_total; p++ ) {
 				if( address + p == program_counter ) {
 					break;
 				} else {

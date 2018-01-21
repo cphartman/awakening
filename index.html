@@ -64,6 +64,11 @@
         </div>
 
          <div class='debug-execution-window'>
+            <div class='execution-toolbar'>
+                <button class='execution-play'>►</button>
+                <button class='execution-pause'>‖</button>
+                <button class='execution-step'>→</button>
+            </div>
             <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current }">
                 <div class='execution-label'>{{row.label}}</div>
                 <div class='execution-address'>{{row.address}}</div>

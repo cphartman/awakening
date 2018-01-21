@@ -83,6 +83,7 @@
 	left: 160px;
 	height: 50%;
 	width: 500px;
+	overflow: hidden;
 }
 
 .execution-row {
