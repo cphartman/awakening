@@ -238,7 +238,7 @@ var DebugExecution = function($window, emulation_core) {
 
 			// Increment row address for each parameter
 			for( var p = 1; p <= parameter_total; p++ ) {
-				if( address + p == program_counter ) {
+				if( address + 1 == program_counter ) {
 					break;
 				} else {
 					address++;
