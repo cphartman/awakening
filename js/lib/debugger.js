@@ -64,7 +64,7 @@ var DebugState = function($window, emulation_core) {
 	}
 
 	this.JumpToCurrent = function() {
-		this.stackTop = gameboy.stackPointer - 6;
+		this.stackTop = gameboy.stackPointer + 6;
 		this.Refresh();
 	}
 
@@ -96,30 +96,25 @@ var DebugState = function($window, emulation_core) {
 
 
 		var row_height = 20;
-		var window_height = 800;//this.$window.offsetHeight;
-		var register_height = 200;//this.$window.querySelector(".debug-state-window").offsetHeight;
 		var stack_height = document.querySelector(".debug-stack").offsetHeight;
-		//window_height - register_height
+		
 		row_count = Math.floor(stack_height / row_height);
 		
 		for( var i = 0; i < row_count; i++ ) {
-			var address = this.stackTop + i*2;
+			var address = this.stackTop - i*2;
 			var mem = DebugReadMemory(address, 2);
 
 			this.view.stack_rows[i] = {
-				label: "STACK",
+				label: GameBoyCore.GetMemoryRegion(address),
 				address: int2hex(address,4),
 				current: (address == gameboy.stackPointer ),
-				values	: [
+				values: [
 					int2hex(mem[1],2),
 					int2hex(mem[0],2)
 					]
 			};
 		}
-
-		return;
 	}
-
 }
 
 var DebugExecution = function($window, emulation_core) {
@@ -129,7 +124,6 @@ var DebugExecution = function($window, emulation_core) {
 	this.view = false;
 	this.scrollbar = false;;
 
-	this.$table = false;
 	this.$toolbar = false;
 	
 	this.Init = function(){
@@ -239,7 +233,7 @@ var DebugExecution = function($window, emulation_core) {
 			}
 
 			this.view.op_rows[row_index] = {
-				label: "RAM",
+				label: GameBoyCore.GetMemoryRegion(address),
 				address: int2hex(address,4),
 				opcode: code_str,
 				instruction: instruction,
@@ -249,32 +243,6 @@ var DebugExecution = function($window, emulation_core) {
 			address += parameter_total;
 			address++;
 		}
-
-		this.$table.scrollTop = (this.currentAddress / gameboy.memory.length) * this.$table.scrollHeight;
-	}
-};
-
-var DebugReadMemory = function(start, length) {
-	var results = [];
-
-	if( typeof length == 'undefined' ) {
-		length = 1;
-	}
-
-	for( var i = 0; i < length; i++ ) {
-		var address = start + i;
-		if( address < gameboy.memory.length ) {
-			results[i] = gameboy.memory[address];
-		} else {
-			results[i] = 0;
-		}
-
-	}
-
-	if( length == 1 ) {
-		return results[0];
-	} else {
-		return results;
 	}
 };
 
@@ -286,38 +254,6 @@ var DebugMemory = function($window, emulation_core) {
 	this.emulationCore = emulation_core;
 	this.view = false;
 	this.addressTop = 0;
-
-	this.HARDWARE_MEMORY_RANGES = [{
-			end: 0x4000,
-			label: "ROM0"
-		},{
-			end: 0x8000,
-			label: "ROM1"
-		},{
-			end: 0xA000,
-			label: "VRAM"
-		},{
-			end: 0xC000,
-			label: "SRAM"
-		},{
-			end: 0xE000,
-			label: "WRAM"
-		},{
-			end: 0xFE00,
-			label: "ECHO"
-		},{
-			end: 0xFEA0,
-			label: "&nbsp;OAM"
-		},{
-			end: 0xFF00,
-			label: "----"
-		},{
-			end: 0xFF80,
-			label: "&nbsp;I/O"
-		},{
-			end: 0xFFFF,
-			label: "HRAM"
-	}];
 
 	this.Init = function() {
 
@@ -353,6 +289,7 @@ var DebugMemory = function($window, emulation_core) {
 			var address = this.addressTop + i*16;
 
 			this.view.memory_rows[i] = {
+				label: GameBoyCore.GetMemoryRegion(address),
 				address: int2hex(address,4),
 				values: []
 			}
@@ -374,6 +311,30 @@ var DebugMemory = function($window, emulation_core) {
 	return this;
 };
 
+
+var DebugReadMemory = function(start, length) {
+	var results = [];
+
+	if( typeof length == 'undefined' ) {
+		length = 1;
+	}
+
+	for( var i = 0; i < length; i++ ) {
+		var address = start + i;
+		if( address > 0 && address < gameboy.memory.length ) {
+			results[i] = gameboy.memory[address];
+		} else {
+			results[i] = 0;
+		}
+
+	}
+
+	if( length == 1 ) {
+		return results[0];
+	} else {
+		return results;
+	}
+};
 
 
 function int2hex(val, len) {

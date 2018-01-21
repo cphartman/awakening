@@ -9661,5 +9661,46 @@ GameBoyCore.OpCodeParameters = {
 		0xfe: 2
 };
 
+GameBoyCore.GetMemoryRegion = function(address) {
+	for( var i = 0; i < GameBoyCore.MemoryRegions.length; i++ ) {
+		if( address < GameBoyCore.MemoryRegions[i].end ) {
+			return GameBoyCore.MemoryRegions[i].label;
+		}
+	}
+
+	return " BAD";
+}
+
+GameBoyCore.MemoryRegions = [{
+		end: 0x4000,
+		label: "ROM0"
+	},{
+		end: 0x8000,
+		label: "ROM1"
+	},{
+		end: 0xA000,
+		label: "VRAM"
+	},{
+		end: 0xC000,
+		label: "SRAM"
+	},{
+		end: 0xE000,
+		label: "WRAM"
+	},{
+		end: 0xFE00,
+		label: "ECHO"
+	},{
+		end: 0xFEA0,
+		label: " OAM"
+	},{
+		end: 0xFF00,
+		label: "----"
+	},{
+		end: 0xFF80,
+		label: " I/O"
+	},{
+		end: 0xFFFF,
+		label: "HRAM"
+}];
 
 var cout = function(){};
