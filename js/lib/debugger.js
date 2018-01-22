@@ -314,6 +314,16 @@ var DebugMemory = function($window, emulation_core) {
 	return this;
 };
 
+var DebugExecutionBreakpoint = function(emulation_core, address) {
+	this.emulationCore = emulation_core;
+	this.address = address;
+	this.enable = true;
+	this.type = "EXECUTION"
+	this.onBreak = false;
+
+	this.emulationCore.debug_breakpoints.push(this);
+}
+
 
 var DebugReadMemory = function(start, length) {
 	var results = [];

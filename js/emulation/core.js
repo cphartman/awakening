@@ -1,3 +1,5 @@
+56666+
+
 "use strict";
  /*
   JavaScript GameBoy Color Emulator
@@ -11,6 +13,7 @@
 */
 function GameBoyCore(canvas, ROMImage) {
 	this.debug_step = 0;
+	this.debug_breakpoints = [];
 
 	//Params, etc...
 	this.canvas = canvas;						//Canvas DOM object for drawing out the graphics to.
@@ -5777,6 +5780,25 @@ GameBoyCore.prototype.executeIteration = function () {
 	var opcodeToExecute = 0;
 	var timedTicks = 0;
 	while (this.stopEmulator == 0) {
+
+		// Execution breakpoint
+		if( this.debug_breakpoints.length ) {
+			for( var i = 0; i < this.debug_breakpoints.length; i++ ) {
+				var breakpoint = this.debug_breakpoints[i];
+				if( breakpoint.address == this.programCounter && breakpoint.type == "EXECUTION" ) {
+					if( !breakpoint.onBreak ) {
+						breakpoint.onBreak = true;
+						gameboy.stopEmulator |= 2;
+						this.iterationEndRoutine();
+						awakening.debugger.JumpToCurrent();
+						return;
+					} else {
+						breakpoint.onBreak = false;
+					}
+				}
+			}
+		}
+
 		//Interrupt Arming:
 		switch (this.IRQEnableDelay) {
 			case 1:
@@ -5790,6 +5812,7 @@ GameBoyCore.prototype.executeIteration = function () {
 			//IME is true and and interrupt was matched:
 			this.launchIRQ();
 		}
+
 		//Fetch the current opcode:
 		opcodeToExecute = this.memoryReader[this.programCounter](this, this.programCounter);
 		//Increment the program counter to the next instruction:
