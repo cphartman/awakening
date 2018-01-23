@@ -1,3 +1,6 @@
+#WINDOW-TEMPLATES {
+	display: none;
+}
 
 
 #GameBoy {
@@ -16,11 +19,12 @@
 /* Debug State Window */
 .debug-state-window {
 	position: absolute;
-	top: 144px;
+	top: 0;
 	left: 0;
-	height: calc( 100% - 144px );
-	width: 160px;
+	height: 100%;
+	width: 100%;
 	font-family: monospace;
+	overflow: hidden;
 }
 
 .debug-state-window .debug-registers {
@@ -80,9 +84,10 @@
 .debug-execution-window {
 	position: absolute;
 	top: 0;
-	left: 160px;
-	height: 50%;
-	width: 500px;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	font-family: monospace;
 	overflow: hidden;
 }
 
@@ -109,21 +114,15 @@
 	width: 20%;
 }
 
-
-.debug-memory-window {
-	top: 50%;
-	left: 160px;
-	height: 150px;
-	width: 400px;
-}
-
 /* Debug Memory Window */
 .debug-memory-window {
 	position: absolute;
-	height: 50%;
-	top: 50%;
-	width: 500px;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
 	font-family: monospace;
+	overflow: hidden;
 }
 
 .memory-row {
@@ -140,4 +139,12 @@
 .memory-value {
 	display: inline-block;
 	padding: 0 5px;
+}
+
+.debug-lcd-window canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }

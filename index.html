@@ -5,6 +5,7 @@
         <link href='css/normalize.css' rel='stylesheet'>
 
         <!-- Dependencies -->
+        <script type="text/javascript" src="js/lib/pubsub.js"></script>
         <script type="text/javascript" src="js/lib/vue.js"></script>
         <script type="text/javascript" src="js/lib/gui.js"></script>
         <script type="text/javascript" src="js/lib/debugger.js"></script>
@@ -12,6 +13,8 @@
         <script type="text/javascript" src="js/lib/XAudioServer.js"></script>
 
         <!-- Components -->
+        <link href='css/component/window.css' rel='stylesheet'>
+        <script src="js/component/window.js" type="text/javascript" ></script>
         <link href='css/component/scrollbar.css' rel='stylesheet'>
         <script src="js/component/scrollbar.js" type="text/javascript" ></script>
         
@@ -30,51 +33,55 @@
         <title>Awakening</title>
     </head>
     <body>
-        <div id="GameBoy" class="window">
-            <canvas id="mainCanvas"></canvas>
-        </div>
 
-        <div class="debug-memory-window" class="window">
-            <div class='memory-row' v-for="row in memory_rows" >
-                <div class='memory-label'>{{row.label}}</div>
-                <div class='memory-address'>{{row.address}}</div>
-                <div class='memory-values'>
-                    <div class='memory-value' v-for="value in row.values">{{value}}</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="debug-state-window" class="window">
-            <div class='debug-registers'>
-                <div class='register-row' v-for="row in register_rows">
-                    <div class='register-key'>{{row.register}}</div>
-                    <div class='register-value'>{{row.value}}</div>
-                </div>
-            </div>
+        <div id="WINDOW-TEMPLATES">
 
-            <div class='debug-stack'>
-                <div class='stack-row' v-for="row in stack_rows"  v-bind:class="{ current: row.current }">
-                    <div class='stack-label'>{{row.label}}</div>
-                    <div class='stack-address'>{{row.address}}</div>
-                    <div class='stack-values' v-for="value in row.values">
-                        <div class='stack-value'>{{value}}</div>
+            <!-- Memory Window Template -->
+            <div class="debug-memory-window">
+                <div class='memory-row' v-for="row in memory_rows" >
+                    <div class='memory-label'>{{row.label}}</div>
+                    <div class='memory-address'>{{row.address}}</div>
+                    <div class='memory-values'>
+                        <div class='memory-value' v-for="value in row.values">{{value}}</div>
                     </div>
                 </div>
             </div>
-        </div>
+            
+            <!-- State Window Template -->
+            <div class="debug-state-window">
+                <div class='debug-registers'>
+                    <div class='register-row' v-for="row in register_rows">
+                        <div class='register-key'>{{row.register}}</div>
+                        <div class='register-value'>{{row.value}}</div>
+                    </div>
+                </div>
 
-         <div class='debug-execution-window'>
-            <div class='execution-toolbar'>
-                <button class='execution-play'>►</button>
-                <button class='execution-pause'>‖</button>
-                <button class='execution-step'>→</button>
+                <div class='debug-stack'>
+                    <div class='stack-row' v-for="row in stack_rows"  v-bind:class="{ current: row.current }">
+                        <div class='stack-label'>{{row.label}}</div>
+                        <div class='stack-address'>{{row.address}}</div>
+                        <div class='stack-values' v-for="value in row.values">
+                            <div class='stack-value'>{{value}}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current }">
-                <div class='execution-label'>{{row.label}}</div>
-                <div class='execution-address'>{{row.address}}</div>
-                <div class='execution-opcode'>{{row.opcode}}</div>
-                <div class='execution-instruction'>{{row.instruction}}</div>
+
+            <!-- Execution Window Template -->
+            <div class='debug-execution-window'>
+                <div class='execution-toolbar'>
+                    <button class='execution-play'>►</button>
+                    <button class='execution-pause'>‖</button>
+                    <button class='execution-step'>→</button>
+                </div>
+                <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current }">
+                    <div class='execution-label'>{{row.label}}</div>
+                    <div class='execution-address'>{{row.address}}</div>
+                    <div class='execution-opcode'>{{row.opcode}}</div>
+                    <div class='execution-instruction'>{{row.instruction}}</div>
+                </div>
             </div>
+
         </div>
     </body>
 </html>

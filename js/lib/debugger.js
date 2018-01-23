@@ -1,3 +1,68 @@
+var DebuggerWindowFactory = {};
+
+DebuggerWindowFactory.Create = function(type) {
+
+	var win = new Window();
+	var template = this.GetTemplate(type);
+	win.InitTemplate(template);
+	
+	// Debugger window specific properties
+	win.emulation_core = awakening.emulator;
+	win.emulation_debugger = false;
+	
+	switch( type ) {
+		case "lcd":
+			win.emulation_debugger = new DebugLCD(win.emulation_core);
+			break;
+
+		case "memory":
+			win.emulation_debugger = new DebugMemory(win.emulation_core);
+			break;
+
+		case 'state':
+			win.emulation_debugger = new DebugState(win.emulation_core);
+			break;
+
+		case 'execution':
+			win.emulation_debugger = new DebugExecution(win.emulation_core);
+			break;
+
+		case 'breakpoints':
+			win.emulation_debugger = new DebugBrakepoints(win.emulation_core);
+			break;
+	}
+
+	// Setup Subscriptions
+	win.DebugRefresh = function (msg, data) {
+		this.emulation_debugger.Refresh();
+		this.WindowRefresh();
+	}.bind(win);
+	PubSub.subscribe('Debugger.Refresh', win.DebugRefresh);
+
+	if( win.emulation_debugger.JumpToCurrent ) {
+		win.DebugJumpToCurrent = function (msg, data) {
+			this.emulation_debugger.JumpToCurrent();
+			PubSub.publish('Debugger.Refresh');
+		}.bind(win);
+		PubSub.subscribe('Debugger.JumpToCurrent', win.DebugJumpToCurrent);
+	}
+
+	win.emulation_debugger.InitWindow(win.$el);
+
+	return win;
+	
+}
+
+DebuggerWindowFactory.GetTemplate = function(type) {
+	var $template = document.querySelector("#WINDOW-TEMPLATES > .debug-"+type+"-window");
+
+	if( $template ) {
+		return $template.outerHTML;	
+	} else {
+		return "<div class='debug-"+type+"-window'></div>";
+	}
+}
+
 Debugger = function(emulator_core) {
 
 	// Available debugger tools
@@ -7,18 +72,8 @@ Debugger = function(emulator_core) {
 
 	this.emulationCore = emulator_core;
 
-	this.Init = function() {
-
-	};
-
 	this.InitMemoryWindow = function($window){
-		this.debug_memory = new DebugMemory($window, this.emulationCore);
-		this.debug_memory.Init();
-
-		var loop = function(){
-			this.debug_memory.Refresh();
-		};
-		window.setInterval(loop.bind(this),10);
+		
 	};
 
 	this.InitExecutionWindow = function($window) {
@@ -43,60 +98,69 @@ Debugger = function(emulator_core) {
 	}
 }
 
-var DebugState = function($window, emulation_core) {
-	this.$window = $window;
+var DebugState = function(emulation_core) {
+	this.type = "state";
+	this.$window = false;
 	this.stackTop = 0;
 	this.emulationCore = emulation_core;
 	this.view = false;
+	this.template = document.querySelector;
 
-	this.Init = function() {
+	this.InitWindow = function($window) {
 		
+		var $vue_node = $window.querySelector(".window-template");
+
 		this.view = new Vue({
-		  el: this.$window,
+		  el: $vue_node,
 		  data: {
 		  	register_rows: [],
 		  	stack_rows: [],
 		  }
 		});
 
-		this.Refresh();
+		// Vue destroys the original window dom element, restore the reference
+		this.$window = this.view.$el.querySelector('.debug-state-window');
 
+		this.Refresh();
 	}
 
 	this.JumpToCurrent = function() {
-		this.stackTop = gameboy.stackPointer + 6;
+		this.stackTop = this.emulationCore.stackPointer + 6;
 		this.Refresh();
 	}
 
 	this.Refresh = function() {
 		
-		var registerF = ((gameboy.FZero) ? 0x80 : 0) | ((gameboy.FSubtract) ? 0x40 : 0) | ((gameboy.FHalfCarry) ? 0x20 : 0) | ((gameboy.FCarry) ? 0x10 : 0);
+		var registerF = ((this.emulationCore.FZero) ? 0x80 : 0) | 
+						((this.emulationCore.FSubtract) ? 0x40 : 0) | 
+						((this.emulationCore.FHalfCarry) ? 0x20 : 0) | 
+						((this.emulationCore.FCarry) ? 0x10 : 0);
 
 		this.view.register_rows = [
 			{
 				register: "AF",
-				value: int2hex(gameboy.registerA,2)+int2hex(registerF,2),
+				value: int2hex(this.emulationCore.registerA,2)+int2hex(registerF,2),
 			},{
 				register: "BC",
-				value: int2hex(gameboy.registerB,2)+int2hex(gameboy.registerC,2),
+				value: int2hex(this.emulationCore.registerB,2)+int2hex(this.emulationCore.registerC,2),
 			},{
 				register: "DE",
-				value: int2hex(gameboy.registerD,2)+int2hex(gameboy.registerE,2),
+				value: int2hex(this.emulationCore.registerD,2)+int2hex(this.emulationCore.registerE,2),
 			},{
 				register: "HL",
-				value: int2hex(gameboy.registersHL,4),
+				value: int2hex(this.emulationCore.registersHL,4),
 			},{
 				register: "SP",
-				value: int2hex(gameboy.stackPointer,4),
+				value: int2hex(this.emulationCore.stackPointer,4),
 			},{
 				register: "PC",
-				value: int2hex(gameboy.programCounter,4),
+				value: int2hex(this.emulationCore.programCounter,4),
 			},
 		];
 
 
 		var row_height = 20;
-		var stack_height = document.querySelector(".debug-stack").offsetHeight;
+		var stack_height = this.$window.offsetHeight;
 		
 		row_count = Math.floor(stack_height / row_height);
 		
@@ -117,36 +181,37 @@ var DebugState = function($window, emulation_core) {
 	}
 }
 
-var DebugExecution = function($window, emulation_core) {
-	this.$window = $window;
+var DebugExecution = function(emulation_core) {
+	this.$window = false;
 	this.addressTop = 0;
 	this.emulationCore = emulation_core;
 	this.view = false;
-	this.scrollbar = false;;
+	this.scrollbar = false;
 
 	this.$toolbar = false;
 	
-	this.Init = function(){
+	this.InitWindow = function($window) {
 
-		this.$play = document.querySelector("#execution-play");
-		this.$pause = document.querySelector("#execution-pause");
-		this.$step = document.querySelector("#execution-step");
-
+		var $vue_node = $window.querySelector(".window-template");
+	
 		this.view = new Vue({
-		  el: this.$window,
+		  el: $vue_node,
 		  data: {
 		  	op_rows: [],
 		  }
 		});
 
 		// Vue destroys the original window dom element, restore the reference
-		this.$window = this.view.$el;
+		this.$window = this.view.$el.querySelector('.debug-execution-window');
+
+		this.$play = this.$window.querySelector(".execution-play");
+		this.$pause = this.$window.querySelector(".execution-pause");
+		this.$step = this.$window.querySelector(".execution-step");
 
 		var row_count = this.emulationCore.memory.length;
 		this.scrollbar = new Scrollbar();
 		this.scrollbar.Init(this.$window, row_count);
 		this.scrollbar.callback = this.domEvents['scroll'].bind(this);
-
 
 		this.Refresh();
 
@@ -154,18 +219,17 @@ var DebugExecution = function($window, emulation_core) {
 	};
 
 	this.BindEvents = function() {
-		this.$window.querySelector(".execution-play").addEventListener("click", this.domEvents['playClick'].bind(this));
+		this.$play.addEventListener("click", this.domEvents['playClick'].bind(this));
 
-		this.$window.querySelector(".execution-pause").addEventListener("click", this.domEvents['pauseClick'].bind(this));
+		this.$pause.addEventListener("click", this.domEvents['pauseClick'].bind(this));
 
-		this.$window.querySelector(".execution-step").addEventListener("click", this.domEvents['stepClick'].bind(this));	
+		this.$step.addEventListener("click", this.domEvents['stepClick'].bind(this));	
 	}
 
 	this.domEvents = {
 		'pauseClick': function(){
 			pause();
-			awakening.debugger.JumpToCurrent();
-
+			PubSub.publish('Debugger.JumpToCurrent');
 			return false;
 		},
 		'playClick': function(){
@@ -186,8 +250,8 @@ var DebugExecution = function($window, emulation_core) {
 
 			// Pause
 			this.emulationCore.stopEmulator |= 2;
-
-			awakening.debugger.JumpToCurrent();
+			PubSub.publish('Debugger.JumpToCurrent');
+			
 			return;
 		},
 		'scroll': function(){
@@ -250,26 +314,42 @@ var DebugExecution = function($window, emulation_core) {
 	}
 };
 
-var DebugMemory = function($window, emulation_core) {
+
+var DebugLCD = function(emulation_core) {
+	this.emulation_core = emulation_core;
+	this.$window = false;
+
+	this.InitWindow = function($window) {
+		this.$window = $window;
+		this.$window.innerHTML = "<div class='debug-lcd-window'></div>";
+		this.$window.querySelector(".debug-lcd-window").appendChild(this.emulation_core.canvas);
+	}
+
+	this.Refresh = function() {
+	}
+}
+
+
+var DebugMemory = function(emulation_core) {
 	this.row_width = 16;
 	this.max = 0x10000;
 
-	this.$window = $window;
 	this.emulationCore = emulation_core;
 	this.view = false;
 	this.addressTop = 0;
 
-	this.Init = function() {
+	this.InitWindow = function($window) {
+		var $vue_node = $window.querySelector(".window-template");
 
 		this.view = new Vue({
-		  el: this.$window,
+		  el: $vue_node,
 		  data: {
 		  	memory_rows: [],
 		  }
 		});
 
 		// Vue destroys the original window dom element, restore the reference
-		this.$window = this.view.$el;
+		this.$window = this.view.$el.querySelector('.debug-memory-window');
 
 		var row_count = this.emulationCore.memory.length / 16;
 		this.scrollbar = new Scrollbar();
@@ -320,8 +400,13 @@ var DebugExecutionBreakpoint = function(emulation_core, address) {
 	this.enable = true;
 	this.type = "EXECUTION"
 	this.onBreak = false;
+	this.$window = false;
 
 	this.emulationCore.debug_breakpoints.push(this);
+
+	this.InitWindow = function($window) {
+		this.$window = $window;
+	}
 }
 
 
