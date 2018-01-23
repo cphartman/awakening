@@ -1,19 +1,34 @@
-var DebuggerWindowFactory = {};
+var DebugProgramFactory = {};
 
-DebuggerWindowFactory.Create = function(type) {
+DebugProgramFactory.Create = function(type) {
 
-	var win = new Window();
-	
-	// Attach program to window
-	win.program = DebuggerWindowFactory.GetProgram(type);
-	win.program.window = win;
+	var program = DebugProgramFactory.GetProgram(type);
 
-	win.Init();
+	// Set program's template
+	program.template = this.GetTemplate(type);
 
-	return win;
+	// Set program's window
+	program.window = new Window();
+	program.window.Init(program.template);
+
+	// Setup debugger program subscriptions
+	PubSub.subscribe('Debugger.Refresh', function (msg, data) {
+		this.window.Refresh();
+		this.Refresh();
+	}.bind(program));
+
+	if( program.JumpToCurrent ) {
+		PubSub.subscribe('Debugger.JumpToCurrent', function (msg, data) {
+			this.JumpToCurrent();
+			PubSub.publish('Debugger.Refresh');
+		}.bind(program));
+	}
+
+	program.Init();
+	return program;
 }
 
-DebuggerWindowFactory.GetProgram = function(type) {
+DebugProgramFactory.GetProgram = function(type) {
 
 	var emulation_core = awakening.emulator;
 	
@@ -37,39 +52,23 @@ DebuggerWindowFactory.GetProgram = function(type) {
 			break;
 
 		case 'breakpoint':
-			program = new DebugBrakepointProgram(emulation_core);
+			program = new DebugBreakpointProgram(emulation_core);
 			break;
 
 		default:
 			debugger;
 	}
 
-	// Set debugger program template
-	program.template = this.GetTemplate(type);
-
-	// Setup debugger program subscriptions
-	PubSub.subscribe('Debugger.Refresh', function (msg, data) {
-		this.window.WindowRefresh();
-		this.Refresh();
-	}.bind(program));
-
-	if( program.JumpToCurrent ) {
-		PubSub.subscribe('Debugger.JumpToCurrent', function (msg, data) {
-			this.JumpToCurrent();
-			PubSub.publish('Debugger.Refresh');
-		}.bind(program));
-	}
-
 	return program;
 }
 
-DebuggerWindowFactory.GetTemplate = function(type) {
+DebugProgramFactory.GetTemplate = function(type) {
 	var template_selector = "#WINDOW-TEMPLATES > .debug-"+type+"-template";
 	var $template = document.querySelector(template_selector);
 
 	var template_html = "";
 	if( $template ) {
-		template_html = $template.outerHTML;	
+		template_html = $template.innerHTML;	
 	}
 
 	return "<div class='debug-"+type+"-window'>"+template_html+"</div>";

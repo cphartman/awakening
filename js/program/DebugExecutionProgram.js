@@ -6,9 +6,9 @@ var DebugExecutionProgram = function(emulation_core) {
 	this.scrollbar = false;
 	this.$toolbar = false;
 	
-	this.InitWindow = function($window) {
+	this.Init = function() {
 
-		var $vue_node = $window.querySelector(".window-template");
+		var $vue_node = this.window.$el;
 	
 		this.view = new Vue({
 		  el: $vue_node,
@@ -18,6 +18,7 @@ var DebugExecutionProgram = function(emulation_core) {
 		});
 
 		// Vue destroys the original window dom element, restore the reference
+		this.window.$el = this.view.$el;
 		this.$window = this.view.$el.querySelector('.debug-execution-window');
 
 		this.$play = this.$window.querySelector(".execution-play");

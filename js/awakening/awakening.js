@@ -3,6 +3,7 @@ Awakening = function(){
 	this.emulator = false,
 	this.$canvas = false;
 	this.debugger = false;
+	this.programs = {};
 
 	this.Init = function() {
 		this.$canvas = document.createElement("canvas");
@@ -27,20 +28,18 @@ Awakening = function(){
 
 	this.InitDebugger = function() {
 
-		this.lcd_window = DebuggerWindowFactory.Create("lcd");
-		this.mem_window = DebuggerWindowFactory.Create("memory");
-		this.execution_window = DebuggerWindowFactory.Create("execution");
-		this.state_window = DebuggerWindowFactory.Create("state");
+		this.programs['lcd'] = DebugProgramFactory.Create("lcd");
+		this.programs['memory'] = DebugProgramFactory.Create("memory");
+		this.programs['execution'] = DebugProgramFactory.Create("execution");
+		this.programs['state'] = DebugProgramFactory.Create("state");
 
 		// Position windows on Debugger.Refresh
-		var debugger_refresh = function() {
+		PubSub.subscribe("Debugger.Refresh", function() {
 			this.PositionDebugWindows();
-			this.lcd_window.WindowRefresh();
-			this.execution_window.WindowRefresh();
-			this.mem_window.WindowRefresh();
-			this.state_window.WindowRefresh();
-		}.bind(this);
-		PubSub.subscribe("Debugger.Refresh", debugger_refresh);
+			for( var p in this.programs ) {
+				this.programs[p].window.Refresh();
+			}
+		}.bind(this));
 
 	
 		PubSub.publish('Debugger.Refresh');
@@ -55,25 +54,25 @@ Awakening = function(){
 		var screen_height = visualViewport.height;
 		var screen_width = window.innerWidth;
 
-		this.lcd_window.top = 0;
-		this.lcd_window.left = 0;
-		this.lcd_window.width = 160;
-		this.lcd_window.height = 144;
+		this.programs['lcd'].window.top = 0;
+		this.programs['lcd'].window.left = 0;
+		this.programs['lcd'].window.width = 160;
+		this.programs['lcd'].window.height = 144;
 		
-		this.mem_window.top = Math.floor(screen_height/2);
-		this.mem_window.left = 160;
-		this.mem_window.width = 800;
-		this.mem_window.height = Math.floor(screen_height/2);
+		this.programs['memory'].window.top = Math.floor(screen_height/2);
+		this.programs['memory'].window.left = 160;
+		this.programs['memory'].window.width = 800;
+		this.programs['memory'].window.height = Math.floor(screen_height/2);
 		
-		this.execution_window.top = 0;
-		this.execution_window.left = 160;
-		this.execution_window.width = 800;
-		this.execution_window.height = Math.floor(screen_height/2);	
+		this.programs['execution'].window.top = 0;
+		this.programs['execution'].window.left = 160;
+		this.programs['execution'].window.width = 800;
+		this.programs['execution'].window.height = Math.floor(screen_height/2);	
 
-		this.state_window.top = 144;
-		this.state_window.left = 0;
-		this.state_window.width = 160;
-		this.state_window.height = Math.floor(screen_height-160);	
+		this.programs['state'].window.top = 144;
+		this.programs['state'].window.left = 0;
+		this.programs['state'].window.width = 160;
+		this.programs['state'].window.height = Math.floor(screen_height-160);	
 	
 	}
 
@@ -103,10 +102,6 @@ Awakening = function(){
 
 	this.LoadSaveState = function() {
 		this.emulator.returnFromState(la_savestate);
-/*
-		window.setTimeout(function(){
-			this.debugger.JumpToCurrent();
-		}.bind(this),100);*/
 	}
 }
 

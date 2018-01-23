@@ -8,20 +8,16 @@ var Window = function() {
 	this.$el = false;
 	this.program = false;
 
-	this.Init = function() {
-		var template = this.program.template;
-
+	this.Init = function(template) {
 		this.$el = document.createElement("div");
 		this.$el.classList.add("window");
-		this.$el.innerHTML = "<div class='window-template'>"+template+"</div>";
+		this.$el.innerHTML = template;
 
 		this.root.appendChild(this.$el);
-		this.WindowRefresh();
-
-		this.program.InitWindow(this.$el);
+		this.Refresh();
 	}
 
-	this.WindowRefresh = function() {
+	this.Refresh = function() {
 		this.$el.style['top'] = this.top+"px";
 		this.$el.style['left'] = this.left+"px";
 		this.$el.style['width'] = this.width+"px";

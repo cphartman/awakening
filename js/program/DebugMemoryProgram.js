@@ -6,17 +6,19 @@ var DebugMemoryProgram = function(emulation_core) {
 	this.view = false;
 	this.addressTop = 0;
 
-	this.InitWindow = function($window) {
-		var $vue_node = $window.querySelector(".window-template");
+	this.Init = function() {
+
+		var $vue_node =  this.window.$el;
 
 		this.view = new Vue({
-		  el: $vue_node,
+		  el: this.window.$el,
 		  data: {
 		  	memory_rows: [],
 		  }
 		});
 
 		// Vue destroys the original window dom element, restore the reference
+		this.window.$el = this.view.$el;
 		this.$window = this.view.$el.querySelector('.debug-memory-window');
 
 		var row_count = this.emulationCore.memory.length / 16;
@@ -28,7 +30,6 @@ var DebugMemoryProgram = function(emulation_core) {
 	}
 
 	this.Refresh = function() {
-
 		var row_height = 20;
 		
 		var window_height = this.$window.offsetHeight;

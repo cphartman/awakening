@@ -5,9 +5,9 @@ var DebugStateProgram = function(emulation_core) {
 	this.view = false;
 	this.template = document.querySelector;
 
-	this.InitWindow = function($window) {
-		
-		var $vue_node = $window.querySelector(".window-template");
+	this.Init = function() {
+
+		var $vue_node =  this.window.$el;
 
 		this.view = new Vue({
 		  el: $vue_node,
@@ -18,6 +18,7 @@ var DebugStateProgram = function(emulation_core) {
 		});
 
 		// Vue destroys the original window dom element, restore the reference
+		this.window.$el = this.view.$el;
 		this.$window = this.view.$el.querySelector('.debug-state-window');
 
 		this.Refresh();
