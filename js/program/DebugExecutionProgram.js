@@ -54,7 +54,14 @@ var DebugExecutionProgram = function(emulation_core) {
 			return false;
 		},
 		'stepClick': function(){
-			
+
+			// Pause game if it's runnig
+			if( !(this.emulationCore.stopEmulator & 2) ) {
+				pause();
+				PubSub.publish('Debugger.JumpToCurrent');
+				return;
+			}
+
 			// Play 1 frame
 			this.emulationCore.stopEmulator &= 1;
 			
