@@ -6,7 +6,6 @@ var Window = function() {
 	this.width = 100;
 	this.height = 100;
 	this.$el = false;
-	this.program = false;
 
 	this.Init = function(template) {
 		this.$el = document.createElement("div");
