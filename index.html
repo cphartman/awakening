@@ -23,7 +23,7 @@
         <script src="js/program/DebugMemoryProgram.js" type="text/javascript" ></script>
         <script src="js/program/DebugStateProgram.js" type="text/javascript" ></script>
         <script src="js/program/DebugExecutionProgram.js" type="text/javascript" ></script>
-        <script src="js/program/DebugBrakepointProgram.js" type="text/javascript" ></script>
+        <script src="js/program/DebugBreakpointProgram.js" type="text/javascript" ></script>
 
         <!-- Require Emulation Core -->
         <script type="text/javascript" src="js/emulation/core.js"></script>
@@ -44,7 +44,7 @@
         <div id="WINDOW-TEMPLATES">
 
             <!-- Memory Window Template -->
-            <div class="debug-memory-window">
+            <div class="debug-memory-template">
                 <div class='memory-row' v-for="row in memory_rows" >
                     <div class='memory-label'>{{row.label}}</div>
                     <div class='memory-address'>{{row.address}}</div>
@@ -55,7 +55,7 @@
             </div>
             
             <!-- State Window Template -->
-            <div class="debug-state-window">
+            <div class="debug-state-template">
                 <div class='debug-registers'>
                     <div class='register-row' v-for="row in register_rows">
                         <div class='register-key'>{{row.register}}</div>
@@ -75,7 +75,7 @@
             </div>
 
             <!-- Execution Window Template -->
-            <div class='debug-execution-window'>
+            <div class='debug-execution-template'>
                 <div class='execution-toolbar'>
                     <button class='execution-play'>►</button>
                     <button class='execution-pause'>‖</button>

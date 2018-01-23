@@ -3,65 +3,76 @@ var DebuggerWindowFactory = {};
 DebuggerWindowFactory.Create = function(type) {
 
 	var win = new Window();
-	var template = this.GetTemplate(type);
-	win.InitTemplate(template);
 	
-	// Debugger window specific properties
-	win.emulation_core = awakening.emulator;
-	win.emulation_debugger = false;
+	// Attach program to window
+	win.program = DebuggerWindowFactory.GetProgram(type);
+	win.program.window = win;
+
+	win.Init();
+
+	return win;
+}
+
+DebuggerWindowFactory.GetProgram = function(type) {
+
+	var emulation_core = awakening.emulator;
 	
+	// Create program object
+	var program = false;
 	switch( type ) {
 		case "lcd":
-			win.emulation_debugger = new DebugLCDProgram(win.emulation_core);
+			program = new DebugLCDProgram(emulation_core);
 			break;
 
 		case "memory":
-			win.emulation_debugger = new DebugMemoryProgram(win.emulation_core);
+			program = new DebugMemoryProgram(emulation_core);
 			break;
 
 		case 'state':
-			win.emulation_debugger = new DebugStateProgram(win.emulation_core);
+			program = new DebugStateProgram(emulation_core);
 			break;
 
 		case 'execution':
-			win.emulation_debugger = new DebugExecutionProgram(win.emulation_core);
+			program = new DebugExecutionProgram(emulation_core);
 			break;
 
-		case 'breakpoints':
-			win.emulation_debugger = new DebugBrakepointsProgram(win.emulation_core);
+		case 'breakpoint':
+			program = new DebugBrakepointProgram(emulation_core);
 			break;
+
+		default:
+			debugger;
 	}
 
-	// Setup Subscriptions
-	win.DebugRefresh = function (msg, data) {
-		this.WindowRefresh();
-		this.emulation_debugger.Refresh();
-		
-	}.bind(win);
-	PubSub.subscribe('Debugger.Refresh', win.DebugRefresh);
+	// Set debugger program template
+	program.template = this.GetTemplate(type);
 
-	if( win.emulation_debugger.JumpToCurrent ) {
-		win.DebugJumpToCurrent = function (msg, data) {
-			this.emulation_debugger.JumpToCurrent();
+	// Setup debugger program subscriptions
+	PubSub.subscribe('Debugger.Refresh', function (msg, data) {
+		this.window.WindowRefresh();
+		this.Refresh();
+	}.bind(program));
+
+	if( program.JumpToCurrent ) {
+		PubSub.subscribe('Debugger.JumpToCurrent', function (msg, data) {
+			this.JumpToCurrent();
 			PubSub.publish('Debugger.Refresh');
-		}.bind(win);
-		PubSub.subscribe('Debugger.JumpToCurrent', win.DebugJumpToCurrent);
+		}.bind(program));
 	}
 
-	win.emulation_debugger.InitWindow(win.$el);
-
-	return win;
-	
+	return program;
 }
 
 DebuggerWindowFactory.GetTemplate = function(type) {
-	var $template = document.querySelector("#WINDOW-TEMPLATES > .debug-"+type+"-window");
+	var template_selector = "#WINDOW-TEMPLATES > .debug-"+type+"-template";
+	var $template = document.querySelector(template_selector);
 
+	var template_html = "";
 	if( $template ) {
-		return $template.outerHTML;	
-	} else {
-		return "<div class='debug-"+type+"-window'></div>";
+		template_html = $template.outerHTML;	
 	}
+
+	return "<div class='debug-"+type+"-window'>"+template_html+"</div>";
 }
 
 var DebugReadMemory = function(start, length) {

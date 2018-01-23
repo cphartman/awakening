@@ -6,14 +6,19 @@ var Window = function() {
 	this.width = 100;
 	this.height = 100;
 	this.$el = false;
+	this.program = false;
 
-	this.InitTemplate = function(template) {
+	this.Init = function() {
+		var template = this.program.template;
+
 		this.$el = document.createElement("div");
-		this.$el.classList.add("window")
+		this.$el.classList.add("window");
 		this.$el.innerHTML = "<div class='window-template'>"+template+"</div>";
 
 		this.root.appendChild(this.$el);
 		this.WindowRefresh();
+
+		this.program.InitWindow(this.$el);
 	}
 
 	this.WindowRefresh = function() {
