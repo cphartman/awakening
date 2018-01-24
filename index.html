@@ -92,6 +92,24 @@
                 </div>
             </div>
 
+            <!-- Breakpoint Window Template -->
+            <div class='debug-breakpoint-template'>
+                <div class='breakpoint-toolbar'>
+                    <button class='breakpoint-new'>New</button>
+                    <button class='breakpoint-delete'>X</button>
+                    <button class='breakpoint-enable-all'>00</button>
+                    <button class='breakpoint-enable-all'>11</button>
+                </div>
+                <div class='breakpoint-row' v-for="row in breakpoint_rows" v-bind:class="{ current: row.current }">
+                    <div class='execution-settings'>
+                        <input type="checkbox" id="checkbox" v-model="row.break_on_read">
+                        <input type="checkbox" id="checkbox" v-model="row.break_on_write">
+                    </div>
+                    <div class='execution-label'>{{row.label}}</div>
+                    <div class='execution-address'>{{row.address}}</div>
+                    <div class='execution-value'>{{row.value}}</div>
+                </div>
+            </div>
         </div>
     </body>
 </html>

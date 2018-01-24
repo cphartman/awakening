@@ -32,6 +32,7 @@ Awakening = function(){
 		this.programs['memory'] = DebugProgramFactory.Create("memory");
 		this.programs['execution'] = DebugProgramFactory.Create("execution");
 		this.programs['state'] = DebugProgramFactory.Create("state");
+		this.programs['breakpoint'] = DebugProgramFactory.Create("breakpoint");
 
 		// Position windows on Debugger.Refresh
 		PubSub.subscribe("Debugger.Refresh", function() {
@@ -74,6 +75,10 @@ Awakening = function(){
 		this.programs['state'].window.width = 160;
 		this.programs['state'].window.height = Math.floor(screen_height-160);	
 	
+		this.programs['breakpoint'].window.top = 0;
+		this.programs['breakpoint'].window.left = 960;
+		this.programs['breakpoint'].window.width = 200;
+		this.programs['breakpoint'].window.height = Math.floor(screen_height/2);
 	}
 
 	this.IsReady = function() {
