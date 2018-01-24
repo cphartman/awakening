@@ -2,9 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
     <head>
 
-        <link href='css/normalize.css' rel='stylesheet'>
-
         <!-- Dependencies -->
+        <link href='css/normalize.css' rel='stylesheet'>
         <script type="text/javascript" src="js/lib/pubsub.js"></script>
         <script type="text/javascript" src="js/lib/vue.js"></script>
         <script type="text/javascript" src="js/lib/gui.js"></script>
@@ -45,11 +44,11 @@
 
             <!-- Memory Window Template -->
             <div class="debug-memory-template">
-                <div class='memory-row' v-for="row in memory_rows" >
+                <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address" >
                     <div class='memory-label'>{{row.label}}</div>
                     <div class='memory-address'>{{row.address}}</div>
                     <div class='memory-values'>
-                        <div class='memory-value' v-for="value in row.values">{{value}}</div>
+                        <div class='memory-value' v-for="col in row.columns" v-bind:data-address="col.address">{{col.value}}</div>
                     </div>
                 </div>
             </div>
@@ -66,9 +65,9 @@
                 <div class='debug-stack'>
                     <div class='stack-row' v-for="row in stack_rows"  v-bind:class="{ current: row.current }">
                         <div class='stack-label'>{{row.label}}</div>
-                        <div class='stack-address'>{{row.address}}</div>
-                        <div class='stack-values' v-for="value in row.values">
-                            <div class='stack-value'>{{value}}</div>
+                        <div class='stack-address memory-link'>{{row.address}}</div>
+                        <div class='stack-values memory-link'>
+                            <div class='stack-value' v-for="value in row.values">{{value}}</div>
                         </div>
                     </div>
                 </div>
