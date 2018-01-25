@@ -6,6 +6,8 @@ var DebugMemoryProgram = function(emulation_core) {
 	this.view = false;
 	this.addressTop = 0;
 
+	this.selectedAddress = -1;
+
 	this.Init = function() {
 
 		var $vue_node =  this.window.$el;
@@ -33,7 +35,20 @@ var DebugMemoryProgram = function(emulation_core) {
 			this.Refresh();
 		}.bind(this));
 
+		PubSub.subscribe("Debugger.Memory.Select",function (msg, data) {
+			this.selectedAddress = data;
+			this.Refresh();
+			debugger;
+		}.bind(this));
+
 		this.SetupMemoryLinkEvent();
+
+		$(this.window.$el).on("click", ".memory-value", function(event){
+			var hex_address_str = this.getAttribute("data-address");
+			var address = parseInt(hex_address_str,16);
+
+			PubSub.publish("Debugger.Memory.Select", address);
+		});
 	}
 
 	this.JumpTo = function(address) {
@@ -104,6 +119,7 @@ var DebugMemoryProgram = function(emulation_core) {
 				this.view.memory_rows[i].columns[m] = {
 					address: int2hex(column_address,4),
 					value: int2hex(value,2),
+					selected: ( this.selectedAddress == column_address)
 				};
 			}
 		}

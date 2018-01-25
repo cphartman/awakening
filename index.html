@@ -4,6 +4,7 @@
 
         <!-- Dependencies -->
         <link href='css/normalize.css' rel='stylesheet'>
+        <script type="text/javascript" src="js/lib/jquery.js"></script>
         <script type="text/javascript" src="js/lib/mouse.js"></script>
         <script type="text/javascript" src="js/lib/pubsub.js"></script>
         <script type="text/javascript" src="js/lib/vue.js"></script>
@@ -51,7 +52,7 @@
                     <div class='memory-label'>{{row.label}}</div>
                     <div class='memory-address'>{{row.address}}</div>
                     <div class='memory-values'>
-                        <div class='memory-value' v-for="col in row.columns" v-bind:data-address="col.address">{{col.value}}</div>
+                        <div class='memory-value' v-for="col in row.columns" v-bind:data-address="col.address" v-bind:class="{ selected: col.selected }">{{col.value}}</div>
                     </div>
                 </div>
             </div>
