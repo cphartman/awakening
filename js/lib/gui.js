@@ -353,21 +353,26 @@ function ArrangeWindows() {
 
 
 function keyDown(event) {
-	var keyCode = event.keyCode;
-	var keyMapLength = keyZones.length;
-	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
-		var keyCheck = keyZones[keyMapIndex];
-		var keysMapped = keyCheck[1];
-		var keysTotal = keysMapped.length;
-		for (var index = 0; index < keysTotal; ++index) {
-			if (keysMapped[index] == keyCode) {
-				GameBoyKeyDown(keyCheck[0]);
-				try {
-					event.preventDefault();
+
+	if( awakening.emulator.debug_enable_input ) {
+
+		var keyCode = event.keyCode;
+		var keyMapLength = keyZones.length;
+		for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
+			var keyCheck = keyZones[keyMapIndex];
+			var keysMapped = keyCheck[1];
+			var keysTotal = keysMapped.length;
+			for (var index = 0; index < keysTotal; ++index) {
+				if (keysMapped[index] == keyCode) {
+					GameBoyKeyDown(keyCheck[0]);
+					try {
+						event.preventDefault();
+					}
+					catch (error) { }
 				}
-				catch (error) { }
 			}
 		}
+
 	}
 }
 function keyUp(event) {

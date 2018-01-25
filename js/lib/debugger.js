@@ -24,6 +24,7 @@ DebugProgramFactory.Create = function(type) {
 		}.bind(program));
 	}
 
+
 	program.Init();
 	return program;
 }

@@ -14,6 +14,7 @@
 function GameBoyCore(canvas, ROMImage) {
 	this.debug_step = 0;
 	this.debug_breakpoints = [];
+	this.debug_enable_input = true;
 
 	//Params, etc...
 	this.canvas = canvas;						//Canvas DOM object for drawing out the graphics to.

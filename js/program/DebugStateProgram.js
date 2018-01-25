@@ -22,6 +22,51 @@ var DebugStateProgram = function(emulation_core) {
 		this.$window = this.view.$el.querySelector('.debug-state-window');
 
 		this.Refresh();
+
+		this.window.$el.addEventListener("mouseover", function(e) {
+			var $target = e.target;
+			if( $target.classList.contains("register-value") ) {
+				//console.log("hover");
+			}
+		}.bind(this));
+
+
+		this.window.$el.addEventListener("mouseout", function(e) {
+			var $target = e.target;
+			if( $target.classList.contains("register-value") ) {
+				//console.log("hover-end");
+			}
+		}.bind(this));
+
+		// Left click
+		this.window.$el.addEventListener("click", function(e) {
+			var $target = e.target;
+			if( $target.classList.contains("register-value") ) {
+			}
+			isRightMB = (e.which == 3); 
+			console.log(isRightMB);
+		}.bind(this));
+
+		// Right Click
+		this.window.$el.addEventListener("contextmenu", function(e) {
+			var $target = e.target;
+			if( $target.classList.contains("register-value") ) {
+				this.popup = new Popup({
+					value: true,
+					$target: $target,
+					callback: function() {
+						var register = this.popup.settings.$target.getAttribute("data-register");
+						var new_value = this.popup.$input.value;
+
+						var low = new_value.substr(0,2);
+						var high = new_value.substr(2,4);
+					}.bind(this)
+				})
+				e.preventDefault();	
+			}
+			return false;
+			
+		}.bind(this));
 	}
 
 	this.JumpToCurrent = function() {
