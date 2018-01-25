@@ -57,23 +57,10 @@ var DebugMemoryProgram = function(emulation_core) {
 			this.addressTop = 0;
 		}
 
+		this.selectedAddress = address;
 		this.scrollbar.Set(this.addressTop);
 		this.Refresh();
-		
-		Vue.nextTick(function(){
-			this.SelectText(address);	
-		}.bind(this));		
-	}
-
-	this.SelectText = function(address) {
-		var $address = document.querySelector(".memory-value[data-address='"+int2hex(address,4)+"']");
-		if( $address ) {
-			selection = window.getSelection();        
-	        range = document.createRange();
-	        range.selectNodeContents($address);
-	        selection.removeAllRanges();
-	        selection.addRange(range);
-	    }
+			
 	}
 
 	this.SetupMemoryLinkEvent = function() {
