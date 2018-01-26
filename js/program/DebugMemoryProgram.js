@@ -38,17 +38,40 @@ var DebugMemoryProgram = function(emulation_core) {
 		PubSub.subscribe("Debugger.Memory.Select",function (msg, data) {
 			this.selectedAddress = data;
 			this.Refresh();
-			debugger;
 		}.bind(this));
 
 		this.SetupMemoryLinkEvent();
 
 		$(this.window.$el).on("click", ".memory-value", function(event){
-			var hex_address_str = this.getAttribute("data-address");
-			var address = parseInt(hex_address_str,16);
+			
+			var selected = $(this).hasClass('selected');
 
-			PubSub.publish("Debugger.Memory.Select", address);
+			if( selected ) {
+				this.popup = new Popup({
+					value: true,
+					$target: this,
+					callback: function() {
+						var address_hex = this.popup.settings.$target.getAttribute("data-address");
+						var address = parseInt(address_hex, 16);
+						var value_hex = this.popup.$input.value;
+						var value = parseInt(value_hex, 16);
+
+						// Clamp value
+						value = (value > 0xff ? 0xff : value);
+						value = (value < 0 ? 0 : value);
+						
+						DebugWriteMemory(address, value);
+						PubSub.publish('Debugger.Refresh');
+					}.bind(this)
+				})
+			} else {
+				var hex_address_str = this.getAttribute("data-address");
+				var address = parseInt(hex_address_str,16);
+
+				PubSub.publish("Debugger.Memory.Select", address);
+			}
 		});
+
 	}
 
 	this.JumpTo = function(address) {

@@ -18,15 +18,23 @@ var Scrollbar = function() {
 		var box_height = this.height * this.rowHeight;
 		this.$el.innerHTML = "<div class='heightbox' style='height: "+box_height+"px'></div>";
 
+		this.$window.addEventListener('mousewheel', this.scrollEvent.bind(this), true);
+
 		this.$el.addEventListener('scroll', this.scrollEvent.bind(this));
 	}
 
-	this.scrollEvent = function() {
+	this.scrollEvent = function(e) {
 		if( this.preventCallback ) {
 			this.preventCallback = false;
 			return;
 		}
 		if( this.callback ) {
+			
+			// Update scroll position for mouse wheel events captured on the window
+			if( e.type == "mousewheel" ) {
+				this.Set(this.value + parseInt(e.deltaY/2));	
+			}
+
 			this.callback.apply();
 		}
 	}

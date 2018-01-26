@@ -5,6 +5,7 @@ var Popup = function(settings) {
 	this.value = false;
 	this.$input = false;
 	this.settings = {};
+	this.closed = false;
 
 	this.PositionToMouse = function() {
 		this.$el.style.top = Mouse.y+"px";
@@ -28,7 +29,12 @@ var Popup = function(settings) {
 	}
 
 	this.Close = function() {
-		this.$el.parentNode.removeChild(this.$el);
+		if( !this.closed ) {
+			this.closed = true;
+			awakening.emulator.debug_enable_input = true;
+			this.settings.callback.call();
+			this.$el.parentNode.removeChild(this.$el);
+		}
 	}
 
 	this.settings = settings;
@@ -58,10 +64,16 @@ var Popup = function(settings) {
 	if( this.$input ) {
 		this.$input.focus();
 
+		this.$input.setSelectionRange(0, this.$input.value.length)
+
 		this.$input.addEventListener("blur",function(){
-			awakening.emulator.debug_enable_input = true;
-			this.settings.callback.call();
-			this.Close();
+			this.Close();	
+		}.bind(this));
+
+		this.$input.addEventListener("keyup", function(event){
+			if( event.keyCode == 13 ) {
+				this.Close();
+			}
 		}.bind(this));
 	}
 

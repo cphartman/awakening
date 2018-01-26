@@ -99,6 +99,17 @@ var DebugReadMemory = function(start, length) {
 	}
 };
 
+var DebugWriteMemory = function(address, values) {
+	if( typeof values != 'array' ) {
+		values = [values];
+	}
+
+	// TODO: bounds checking
+	for( var i = 0; i < values.length; i++ ) {
+		gameboy.memory[address+i] = values[i];
+	}
+}
+
 
 function int2hex(val, len) {
 	val = val.toString(16).toUpperCase();

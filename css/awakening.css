@@ -128,6 +128,7 @@
 .memory-row {
 	height: 20px;
 	line-height: 20px;
+	user-select: none;
 }
 
 .memory-label,
