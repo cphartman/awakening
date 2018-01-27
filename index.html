@@ -26,6 +26,8 @@
         <script src="js/program/DebugMemoryProgram.js" type="text/javascript" ></script>
         <script src="js/program/DebugStateProgram.js" type="text/javascript" ></script>
         <script src="js/program/DebugExecutionProgram.js" type="text/javascript" ></script>
+
+        <link href="css/program/DebugBreakpointProgram.css" rel='stylesheet' ></script>
         <script src="js/program/DebugBreakpointProgram.js" type="text/javascript" ></script>
 
         <!-- Require Emulation Core -->
@@ -94,21 +96,27 @@
 
             <!-- Breakpoint Window Template -->
             <div class='debug-breakpoint-template'>
-                <div class='breakpoint-toolbar'>
-                    <button class='breakpoint-new'>New</button>
-                    <button class='breakpoint-delete'>X</button>
-                    <button class='breakpoint-enable-all'>00</button>
-                    <button class='breakpoint-enable-all'>11</button>
+                <div class='breakpoint-row header' >
+                    <div class='execution-address'>ADDR</div>
+                    <div class='execution-settings'>
+                        <span>R</span>
+                        <span>W</span>
+                        <span>X</span>
+                    </div>
                 </div>
                 <div class='breakpoint-row' v-for="row in breakpoint_rows" v-bind:class="{ current: row.current }">
+                    <div class='execution-address memory-link'>{{row.address}}</div>
                     <div class='execution-settings'>
-                        <input type="checkbox" id="checkbox" v-model="row.break_on_read">
-                        <input type="checkbox" id="checkbox" v-model="row.break_on_write">
+                        <span><input type="checkbox" id="checkbox" v-model="row.r"></span>
+                        <span><input type="checkbox" id="checkbox" v-model="row.w"></span>
+                        <span><input type="checkbox" id="checkbox" v-model="row.x"></span>
                     </div>
-                    <div class='execution-label'>{{row.label}}</div>
-                    <div class='execution-address'>{{row.address}}</div>
-                    <div class='execution-value'>{{row.value}}</div>
+                    <div class='execution-remove'>❌</div>
                 </div>
+                <div class='breakpoint-row new-breakpoint'>
+                    <button class='breakpoint-new'>➕</button>
+                </div>
+                
             </div>
         </div>
     </body>

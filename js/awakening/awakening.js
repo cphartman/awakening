@@ -73,11 +73,11 @@ Awakening = function(){
 		this.programs['state'].window.top = 144;
 		this.programs['state'].window.left = 0;
 		this.programs['state'].window.width = 160;
-		this.programs['state'].window.height = Math.floor(screen_height-160);	
+		this.programs['state'].window.height = Math.floor(screen_height/2) - 144;	
 	
-		this.programs['breakpoint'].window.top = 0;
-		this.programs['breakpoint'].window.left = 960;
-		this.programs['breakpoint'].window.width = 200;
+		this.programs['breakpoint'].window.top = Math.floor(screen_height/2);;
+		this.programs['breakpoint'].window.left = 0;
+		this.programs['breakpoint'].window.width = 160;
 		this.programs['breakpoint'].window.height = Math.floor(screen_height/2);
 	}
 

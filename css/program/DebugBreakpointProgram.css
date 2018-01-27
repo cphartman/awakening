@@ -1,0 +1,20 @@
+.debug-breakpoint-window .breakpoint-row > *{
+	display: inline-block;
+	line-height: 20px;
+}
+
+.debug-breakpoint-window {
+	font-family: monospace;
+}
+
+.execution-settings span {
+	display: inline-block;
+	width: 15px;
+	text-align: center;
+}
+
+.execution-settings input {
+	padding: 0;
+	margin: 0;
+	vertical-align: middle;
+}
