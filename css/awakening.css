@@ -144,6 +144,9 @@
 .memory-value.selected {
 	background-color: rgba(255,0,0,.2);
 }
+.memory-value.breakpoint {
+	border: 1px solid #F00;
+}
 
 .debug-lcd-window canvas {
 	position: absolute;

@@ -5,6 +5,7 @@ var DebugMemoryProgram = function(emulation_core) {
 	this.emulationCore = emulation_core;
 	this.view = false;
 	this.addressTop = 0;
+	this.breakpoints = [];
 
 	this.selectedAddress = -1;
 
@@ -37,6 +38,11 @@ var DebugMemoryProgram = function(emulation_core) {
 
 		PubSub.subscribe("Debugger.Memory.Select",function (msg, data) {
 			this.selectedAddress = data;
+			this.Refresh();
+		}.bind(this));
+
+		PubSub.subscribe("Debugger.Breakpoints.Set",function (msg, data) {
+			this.breakpoints = data;
 			this.Refresh();
 		}.bind(this));
 
@@ -112,6 +118,14 @@ var DebugMemoryProgram = function(emulation_core) {
 		var window_height = this.$window.offsetHeight;
 		row_count = Math.floor(window_height / row_height);
 		
+		var breakpoint_map = {};
+		for( var i in this.breakpoints ) {
+			var breakpoint = this.breakpoints[i];
+			if( breakpoint.r || breakpoint.w ) {
+				breakpoint_map[breakpoint.address] = true;
+			}
+		}
+
 		this.view.memory_rows = [];
 		for( var i = 0; i < row_count; i++ ) {
 
@@ -125,11 +139,13 @@ var DebugMemoryProgram = function(emulation_core) {
 
 			for( var m = 0; m < 16; m++ ) {
 				var column_address = address+m;
+
 				var value = DebugReadMemory(column_address);
 				this.view.memory_rows[i].columns[m] = {
 					address: int2hex(column_address,4),
 					value: int2hex(value,2),
-					selected: ( this.selectedAddress == column_address)
+					selected: ( this.selectedAddress == column_address),
+					breakpoint: ( breakpoint_map[column_address] ? true : false )
 				};
 			}
 		}

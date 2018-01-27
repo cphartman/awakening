@@ -54,7 +54,7 @@
                     <div class='memory-label'>{{row.label}}</div>
                     <div class='memory-address'>{{row.address}}</div>
                     <div class='memory-values'>
-                        <div class='memory-value' v-for="col in row.columns" v-bind:data-address="col.address" v-bind:class="{ selected: col.selected }">{{col.value}}</div>
+                        <div class='memory-value' v-for="col in row.columns" v-bind:data-address="col.address" v-bind:class="{ selected: col.selected, breakpoint: col.breakpoint }">{{col.value}}</div>
                     </div>
                 </div>
             </div>
@@ -104,12 +104,12 @@
                         <span>X</span>
                     </div>
                 </div>
-                <div class='breakpoint-row' v-for="row in breakpoint_rows" v-bind:class="{ current: row.current }">
+                <div class='breakpoint-row' v-for="row in breakpoint_rows" v-bind:data-address="row.address">
                     <div class='execution-address memory-link'>{{row.address}}</div>
                     <div class='execution-settings'>
-                        <span><input type="checkbox" id="checkbox" v-model="row.r"></span>
-                        <span><input type="checkbox" id="checkbox" v-model="row.w"></span>
-                        <span><input type="checkbox" id="checkbox" v-model="row.x"></span>
+                        <span><input type="checkbox" data-setting='r' value="1" v-model="row.r"></span>
+                        <span><input type="checkbox" data-setting='w' value="1" v-model="row.w"></span>
+                        <span><input type="checkbox" data-setting='x' value="1" v-model="row.x"></span>
                     </div>
                     <div class='execution-remove'>❌</div>
                 </div>
