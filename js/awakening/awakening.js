@@ -6,6 +6,8 @@ Awakening = function(){
 	this.programs = {};
 
 	this.Init = function() {
+		PubSub.immediateExceptions = true;
+		
 		this.$canvas = document.createElement("canvas");
 
 		this.InitEmulator();
@@ -60,25 +62,25 @@ Awakening = function(){
 		this.programs['lcd'].window.width = 160;
 		this.programs['lcd'].window.height = 144;
 		
-		this.programs['memory'].window.top = Math.floor(screen_height/2);
+		this.programs['memory'].window.top = Math.floor(screen_height*.5);
 		this.programs['memory'].window.left = 160;
 		this.programs['memory'].window.width = 800;
-		this.programs['memory'].window.height = Math.floor(screen_height/2);
+		this.programs['memory'].window.height = Math.floor(screen_height*.5);
 		
 		this.programs['execution'].window.top = 0;
 		this.programs['execution'].window.left = 160;
 		this.programs['execution'].window.width = 800;
-		this.programs['execution'].window.height = Math.floor(screen_height/2);	
+		this.programs['execution'].window.height = Math.floor(screen_height*.5);	
 
-		this.programs['state'].window.top = 144;
-		this.programs['state'].window.left = 0;
-		this.programs['state'].window.width = 160;
-		this.programs['state'].window.height = Math.floor(screen_height/2) - 144;	
-	
-		this.programs['breakpoint'].window.top = Math.floor(screen_height/2);;
+		this.programs['breakpoint'].window.top = 144;
 		this.programs['breakpoint'].window.left = 0;
 		this.programs['breakpoint'].window.width = 160;
-		this.programs['breakpoint'].window.height = Math.floor(screen_height/2);
+		this.programs['breakpoint'].window.height = Math.floor(screen_height*.5) - 144;	
+	
+		this.programs['state'].window.top = Math.floor(screen_height*.5);;
+		this.programs['state'].window.left = 0;
+		this.programs['state'].window.width = 160;
+		this.programs['state'].window.height = Math.floor(screen_height*.5);
 	}
 
 	this.IsReady = function() {

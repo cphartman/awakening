@@ -81,7 +81,10 @@ var DebugMemoryProgram = function(emulation_core) {
 	}
 
 	this.JumpTo = function(address) {
-		this.addressTop = (address & 0xFFF0) - 0x0080;
+		var window_height = this.$window.offsetHeight;
+		row_count = Math.floor(window_height / 20);
+		
+		this.addressTop = (address & 0xFFF0) - Math.floor(row_count/2) * 0x0010;
 		if( this.addressTop < 0 ) {
 			this.addressTop = 0;
 		}

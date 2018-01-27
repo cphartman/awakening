@@ -1,5 +1,3 @@
-56666+
-
 "use strict";
  /*
   JavaScript GameBoy Color Emulator
@@ -13,7 +11,7 @@
 */
 function GameBoyCore(canvas, ROMImage) {
 	this.debug_step = 0;
-	this.debug_breakpoints = [];
+	this.debug_breakpoints = {r:[],w:[],x:[]};
 	this.debug_enable_input = true;
 
 	//Params, etc...
@@ -4418,18 +4416,59 @@ GameBoyCore.prototype.start = function () {
 	this.run();			//Start the emulation.
 }
 
+GameBoyCore.prototype.CompileBreakpoints = function(breakpoints) {
+	this.debug_breakpoints = {
+		r: {},
+		w: {},
+		x: {},
+	};
+
+	for( var i in breakpoints ) {
+		var breakpoint = breakpoints[i];
+		if( breakpoint.r ) {
+			this.debug_breakpoints.r[breakpoint.address] = 1;
+		}
+		if( breakpoint.w ) {
+			this.debug_breakpoints.w[breakpoint.address] = 1;
+		}
+		if( breakpoint.x ) {
+			this.debug_breakpoints.x[breakpoint.address] = 1;
+		}
+	}
+}
+
+
+
 GameBoyCore.prototype.initMemoryProxy = function() {
 	this.realMemory = this.memory;
 
 	var proxy_handler = {
 		get: function(target, address) {
+			
+			if( this.debug_breakpoints.r[address] ) {
+				// Fire halt memory read interrupt
+				this.memory_breakpoint_halt = 1;
+				console.log(this.programCounter);
+				PubSub.publish('Debugger.JumpToCurrent');
+				PubSub.publish('Debugger.Memory.JumpTo', address);
+			}
 			return gameboy.realMemory[address];
-		},
+		}.bind(this),
 
 		set: function(target, address, value, receiver) {
+			if( this.debug_breakpoints.w[address] ) {
+				// Fire halt memrory write interrupt
+				console.log(int2hex(this.lastPC,4));
+				console.log(int2hex(this.programCounter,4));
+				this.memory_breakpoint_halt = 1;//pause();
+				PubSub.publish('Debugger.JumpToCurrent');
+				PubSub.publish('Debugger.Memory.JumpTo', address);
+				
+				//debugger;
+			}
 			gameboy.realMemory[address] = value;
 			return 1;
-  		}
+  		}.bind(this)
 	}
 	this.memory = new Proxy({},proxy_handler);
 }
@@ -5776,29 +5815,39 @@ GameBoyCore.prototype.run = function () {
 		}
 	}
 }
+
 GameBoyCore.prototype.executeIteration = function () {
 	//Iterate the interpreter loop:
 	var opcodeToExecute = 0;
 	var timedTicks = 0;
 	while (this.stopEmulator == 0) {
 
-		// Execution breakpoint
-		if( this.debug_breakpoints.length ) {
+		// Check for halt execution interrupt
+		if( this.execution_breakpoint_halt ) {
+			this.execution_breakpoint_halt = false;
+		} else {
+			// Fire halt execution interrupt
 			for( var i = 0; i < this.debug_breakpoints.length; i++ ) {
 				var breakpoint = this.debug_breakpoints[i];
-				if( breakpoint.address == this.programCounter && breakpoint.type == "EXECUTION" ) {
-					if( !breakpoint.onBreak ) {
-						breakpoint.onBreak = true;
-						gameboy.stopEmulator |= 2;
-						this.iterationEndRoutine();
-						awakening.debugger.JumpToCurrent();
-						return;
-					} else {
-						breakpoint.onBreak = false;
-					}
+				if( breakpoint.address == this.programCounter && breakpoint.x ) {
+					this.executaion_breakpoint_halt = true;
+					this.iterationEndRoutine();
+					pause();
+					awakening.debugger.JumpToCurrent();
+					return;
 				}
 			}
 		}
+
+		// Check for halt memory interrupt
+		if( this.memory_breakpoint_halt ) {
+			this.memory_breakpoint_halt = false;
+			this.iterationEndRoutine();
+			pause();
+			return;
+		}
+
+
 
 		//Interrupt Arming:
 		switch (this.IRQEnableDelay) {
@@ -5817,6 +5866,7 @@ GameBoyCore.prototype.executeIteration = function () {
 		//Fetch the current opcode:
 		opcodeToExecute = this.memoryReader[this.programCounter](this, this.programCounter);
 		//Increment the program counter to the next instruction:
+		this.lastPC = this.programCounter;
 		this.programCounter = (this.programCounter + 1) & 0xFFFF;
 		//Check for the program counter quirk:
 		if (this.skipPCIncrement) {

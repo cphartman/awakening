@@ -14,6 +14,7 @@ var DebugStateProgram = function(emulation_core) {
 		  data: {
 		  	register_rows: [],
 		  	stack_rows: [],
+		  	flag_rows: [],
 		  }
 		});
 
@@ -102,6 +103,26 @@ var DebugStateProgram = function(emulation_core) {
 				value: int2hex(this.emulationCore.programCounter,4),
 			},
 		];
+
+		this.view.flag_rows = [
+			{
+				label: "Z",
+				desc: "Zero - This bit is set when the result of a math operation is zero or two values match when using the CP instruction.",
+				value: this.emulationCore.FZero
+			},{
+				label: "N",
+				desc: "Subtraction - This bit is set if a subtraction was performed in the last math instruction.",
+				value: this.emulationCore.FSubtract
+			},{
+				label: "H",
+				desc: "Half Carry - This bit is set if a carry occurred from the lower nibble in the last math operation.",
+				value: this.emulationCore.FHalfCarry
+			},{
+				label: "C",
+				desc: "Carry Flag - This bit is set if a carry occurred from the last math operation or if register A is the smaller value when executing the CP instruction.",
+				value: this.emulationCore.FCarry
+			}
+        ];
 
 
 		var row_height = 20;

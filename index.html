@@ -61,6 +61,11 @@
             
             <!-- State Window Template -->
             <div class="debug-state-template">
+                <div cass='debug-flags'>
+                    <div class='debug-flag-row' v-for="row in flag_rows">
+                        <div class='debug-flag' v-bind:class="{on: row.value}" v-bind:title="row.desc">{{row.label}}</div>
+                    </div>
+                </div>
                 <div class='debug-registers'>
                     <div class='register-row' v-for="row in register_rows">
                         <div class='register-key'>{{row.register}}</div>

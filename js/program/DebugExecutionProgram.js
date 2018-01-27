@@ -50,6 +50,7 @@ var DebugExecutionProgram = function(emulation_core) {
 			return false;
 		},
 		'playClick': function(){
+			clearLastEmulation();
 			run();
 			return false;
 		},
@@ -85,7 +86,10 @@ var DebugExecutionProgram = function(emulation_core) {
 	}; 
 
 	this.JumpToCurrent = function() {
-		this.addressTop = this.emulationCore.programCounter - 5;
+		var window_height = this.$window.offsetHeight;
+		row_count = Math.floor(window_height / 20);
+
+		this.addressTop = this.emulationCore.programCounter - Math.floor(row_count*.75);
 		this.scrollbar.Set(this.addressTop);
 		this.Refresh();
 	}

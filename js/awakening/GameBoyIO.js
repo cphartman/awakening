@@ -58,6 +58,9 @@ function run() {
 			var dateObj = new Date();
 			gameboy.firstIteration = dateObj.getTime();
 			gameboy.iterations = 0;
+			if( gbRunInterval ) {
+				debugger;
+			}
 			gbRunInterval = setInterval(function () {
 				if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
 					gameboy.run();
@@ -89,6 +92,7 @@ function pause() {
 function clearLastEmulation() {
 	if (GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
 		clearInterval(gbRunInterval);
+		gbRunInterval = false;
 		gameboy.stopEmulator |= 2;
 		cout("The previous emulation has been cleared.", 0);
 	}

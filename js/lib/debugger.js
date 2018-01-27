@@ -85,7 +85,7 @@ var DebugReadMemory = function(start, length) {
 	for( var i = 0; i < length; i++ ) {
 		var address = start + i;
 		if( address > 0 && address < gameboy.memory.length ) {
-			results[i] = gameboy.memory[address];
+			results[i] = gameboy.realMemory[address];
 		} else {
 			results[i] = 0;
 		}
@@ -106,7 +106,7 @@ var DebugWriteMemory = function(address, values) {
 
 	// TODO: bounds checking
 	for( var i = 0; i < values.length; i++ ) {
-		gameboy.memory[address+i] = values[i];
+		gameboy.realMemory[address+i] = values[i];
 	}
 }
 

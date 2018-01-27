@@ -40,12 +40,12 @@ var DebugBreakpointProgram = function(emulation_core) {
 			for( var i in this.breakpoints ) {
 				var breakpoint = this.breakpoints[i];
 				if( breakpoint.address = data.address ) {
-					breakpoint[data.setting] = data.value;
+					this.breakpoints[i][data.setting] = data.value;
 					break;
 				}
 			}
 
-			PubSub.publish("Debugger.Breakpoints.Set", this.breakpoints);
+			this.emulationCore.CompileBreakpoints(this.breakpoints);
 		}.bind(this));
 	}
 
