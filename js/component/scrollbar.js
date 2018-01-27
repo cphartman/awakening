@@ -48,7 +48,7 @@ var Scrollbar = function() {
 		// Prevent scroll event triggering
 		this.preventCallback = true;
 
-		this.value = value*this.rowHeight;
-		this.$el.scrollTop = this.value;
+		this.value = value;
+		this.$el.scrollTop = this.value*this.rowHeight;
 	}
 }
