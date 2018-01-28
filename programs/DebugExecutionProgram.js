@@ -5,6 +5,21 @@ var DebugExecutionProgram = function(emulation_core) {
 	this.view = false;
 	this.scrollbar = false;
 	this.$toolbar = false;
+	this.template = `
+		<div class='debug-execution-window'>
+            <div class='execution-toolbar'>
+                <button class='execution-play'>►</button>
+                <button class='execution-pause'>‖</button>
+                <button class='execution-step'>→</button>
+            </div>
+            <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current }">
+                <div class='execution-label'>{{row.label}}</div>
+                <div class='execution-address'>{{row.address}}</div>
+                <div class='execution-opcode'>{{row.opcode}}</div>
+                <div class='execution-instruction'>{{row.instruction}}</div>
+            </div>
+        </div>
+	`;
 	
 	this.Init = function() {
 

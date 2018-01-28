@@ -4,6 +4,30 @@ var DebugBreakpointProgram = function(emulation_core) {
 	this.$window = false;
 	this.view = false;
 	this.breakpoints = [];
+	this.template = `
+		<div class='debug-breakpoint-window'>
+            <div class='breakpoint-row header' >
+                <div class='execution-address'>ADDR</div>
+                <div class='execution-settings'>
+                    <span>R</span>
+                    <span>W</span>
+                    <span>X</span>
+                </div>
+            </div>
+            <div class='breakpoint-row' v-for="row in breakpoint_rows" v-bind:data-address="row.address">
+                <div class='execution-address memory-link'>{{row.address}}</div>
+                <div class='execution-settings'>
+                    <span><input type="checkbox" data-setting='r' value="1" v-model="row.r"></span>
+                    <span><input type="checkbox" data-setting='w' value="1" v-model="row.w"></span>
+                    <span><input type="checkbox" data-setting='x' value="1" v-model="row.x"></span>
+                </div>
+                <div class='execution-remove'>❌</div>
+            </div>
+            <div class='breakpoint-row new-breakpoint'>
+                <button class='breakpoint-new'>➕</button>
+            </div>
+        </div>
+	`;
 
 	this.Init = function() {
 

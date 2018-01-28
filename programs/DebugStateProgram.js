@@ -3,7 +3,31 @@ var DebugStateProgram = function(emulation_core) {
 	this.stackTop = 0;
 	this.emulationCore = emulation_core;
 	this.view = false;
-	this.template = document.querySelector;
+	this.template = `
+		<div class='debug-state-window'>
+			<div cass='debug-flags'>
+		        <div class='debug-flag-row' v-for="row in flag_rows">
+		            <div class='debug-flag' v-bind:class="{on: row.value}" v-bind:title="row.desc">{{row.label}}</div>
+		        </div>
+		    </div>
+		    <div class='debug-registers'>
+		        <div class='register-row' v-for="row in register_rows">
+		            <div class='register-key'>{{row.register}}</div>
+		            <div class='register-value memory-link' v-bind:data-register="row.register">{{row.value}}</div>
+		        </div>
+		    </div>
+
+		    <div class='debug-stack'>
+		        <div class='stack-row' v-for="row in stack_rows"  v-bind:class="{ current: row.current }">
+		            <div class='stack-label'>{{row.label}}</div>
+		            <div class='stack-address memory-link'>{{row.address}}</div>
+		            <div class='stack-values memory-link'>
+		                <div class='stack-value' v-for="value in row.values">{{value}}</div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+	`;
 
 	this.Init = function() {
 

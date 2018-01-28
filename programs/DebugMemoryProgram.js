@@ -8,6 +8,17 @@ var DebugMemoryProgram = function(emulation_core) {
 	this.breakpoints = [];
 
 	this.selectedAddress = -1;
+	this.template = `
+		<div class="debug-memory-window">
+            <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address" >
+                <div class='memory-label'>{{row.label}}</div>
+                <div class='memory-address'>{{row.address}}</div>
+                <div class='memory-values'>
+                    <div class='memory-value' v-for="col in row.columns" v-bind:data-address="col.address" v-bind:class="{ selected: col.selected, breakpoint: col.breakpoint }">{{col.value}}</div>
+                </div>
+            </div>
+        </div>
+	`;
 
 	this.Init = function() {
 
