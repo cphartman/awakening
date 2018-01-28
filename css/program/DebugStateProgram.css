@@ -1,0 +1,84 @@
+.debug-state-window {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	font-family: monospace;
+	overflow: hidden;
+}
+
+.debug-state-window .debug-registers {
+	position: absolute;
+	top: 0px;
+	left: 25px;
+	width: calc( 100% - 25px );
+	height: 125px;
+}
+
+.debug-state-window .debug-flags {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 25px;
+	height: 125px;
+}
+
+.debug-state-window .debug-flag-row {
+	height: 20px;
+}
+
+.debug-state-window .debug-flag {
+	cursor: pointer;
+	display: inline-block;
+	padding: 0 5px;
+	border-radius: 50%;
+}
+
+.debug-state-window .debug-flag.on {
+	background-color: #F00;
+}
+
+.debug-state-window .debug-stack {
+	position: absolute;
+	top: 145px;
+	left: 0;
+	width: 100%;
+	height: calc( 100% - 145px);
+}
+.debug-state-window .register-row {
+	height: 20px;
+}
+
+.debug-state-window .register-key {
+	display: inline-block;
+	width: 20%;
+}
+
+.debug-state-window .register-value {
+	display: inline-block;
+}
+
+.debug-state-window .stack-row {
+	height: 20px;
+	line-height: 20px;
+}
+
+.debug-state-window .stack-row.current {
+	background-color: #F00;
+	color: #FFF;
+}
+
+.debug-state-window .stack-label {
+	display: inline-block;
+}
+
+.debug-state-window .stack-address {
+	width: 20%;
+	display: inline-block;
+}
+
+.debug-state-window .stack-values,
+.debug-state-window .stack-value {
+	display: inline-block;
+}

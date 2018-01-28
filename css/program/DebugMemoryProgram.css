@@ -1,0 +1,42 @@
+.debug-memory-window {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	font-family: monospace;
+	overflow: hidden;
+}
+
+.memory-row {
+	height: 20px;
+	line-height: 20px;
+	user-select: none;
+}
+
+.memory-label,
+.memory-values,
+.memory-address {
+	display: inline-block;
+}
+
+.memory-value {
+	display: inline-block;
+	padding: 0 5px;
+}
+.memory-value.selected {
+	background-color: rgba(255,0,0,.2);
+}
+.memory-value.breakpoint {
+	border: 1px solid #F00;
+}
+
+.memory-link {
+	cursor: pointer;
+}
+
+.memory-link:hover,
+.memory-link:hover * {
+	text-decoration: underline !important;
+	color: #00F;
+}

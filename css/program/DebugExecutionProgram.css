@@ -1,0 +1,32 @@
+.debug-execution-window {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	font-family: monospace;
+	overflow: hidden;
+}
+
+.execution-row {
+	height: 20px;
+	line-height: 20px;
+}
+
+.execution-row.current {
+	background-color: #F00;
+	color: #FFF;
+}
+
+.execution-label,
+.execution-address,
+.execution-opcode,
+.execution-instruction {
+	display: inline-block;
+}
+
+.execution-label,
+.execution-address,
+.execution-opcode {
+	width: 20%;
+}
