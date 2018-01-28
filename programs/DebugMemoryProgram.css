@@ -30,13 +30,3 @@
 .memory-value.breakpoint {
 	border: 1px solid #F00;
 }
-
-.memory-link {
-	cursor: pointer;
-}
-
-.memory-link:hover,
-.memory-link:hover * {
-	text-decoration: underline !important;
-	color: #00F;
-}

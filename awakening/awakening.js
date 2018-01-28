@@ -12,13 +12,14 @@ Awakening = function(){
 		FileLoader.LoadCss(["lib/normalize"]);
 
 		// Load components
-		FileLoader.Load(["components/window","components/scrollbar","components/popup"]);
+		FileLoader.Load(["components/window","components/scrollbar","components/popup","components/tooltip"]);
 		
 		// Load Window Programs
 		FileLoader.Load(["programs/DebugLCDProgram","programs/DebugMemoryProgram","programs/DebugStateProgram","programs/DebugExecutionProgram","programs/DebugBreakpointProgram"]);
 
 		// Load emulation core
 		FileLoader.LoadJs(["emulation/core"]);
+		FileLoader.LoadJs(["emulation/EmulationSymbols"]);
 
 		// Load awakening project files
 		FileLoader.LoadCss(["awakening/awakening"]);
