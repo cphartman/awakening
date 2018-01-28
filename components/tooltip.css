@@ -5,23 +5,30 @@
 .tooltip::after {
 	content: attr(data-tooltip);
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
+	top: 50%;
+	left: -10%;
+	width: 120%;
 	height: 100%;
+	min-height: 20px;
+
 	overflow: hidden;
 	background-color: #FFF;
 	border: 1px solid #000;
 	border-radius: 3px;
-	white-space: nowrap;
-	transform: translateY(0);
-	transition: transform .2s ease-out;
-	line-height: 15px;
-	font-size: 12px;
+	transform: translateY(-50%);
+	transition: transform .1s ease-out;
+	line-height: 8px;
+	font-size: 8px;
 	padding: 0 1px;
+	text-align: center;
+	vertical-align: middle;
 }
 
 .tooltip:hover::after {
-	transform: translateY(-100%);
+	transform: translateY(-150%);
 	width: auto;
+	font-size: 12px;
+	line-height: 15px;
+	white-space: nowrap;
+	padding: 0 10px;
 }
