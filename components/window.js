@@ -8,6 +8,7 @@ var Window = function() {
 	this.$el = false;
 
 	this.Init = function(template) {
+		debugger;
 		this.$el = document.createElement("div");
 		this.$el.classList.add("window");
 		this.$el.innerHTML = template;

@@ -6,14 +6,36 @@ Awakening = function(){
 	this.programs = {};
 
 	this.Init = function() {
-		PubSub.immediateExceptions = true;
+
+		// Load Libraries
+		FileLoader.LoadJs(["lib/jquery", "lib/mouse", "lib/pubsub", "lib/vue", "lib/gui", "lib/debugger", "lib/resampler", "lib/XAudioServer"]);
+		FileLoader.LoadCss(["lib/normalize"]);
+
+		// Load components
+		FileLoader.Load(["components/window","components/scrollbar","components/popup"]);
 		
+		// Load Window Programs
+		FileLoader.Load(["programs/DebugLCDProgram","programs/DebugMemoryProgram","programs/DebugStateProgram","programs/DebugExecutionProgram","programs/DebugBreakpointProgram"]);
+
+		// Load emulation core
+		FileLoader.LoadJs(["emulation/core"]);
+
+		// Load awakening project files
+		FileLoader.LoadCss(["awakening/awakening"]);
+		FileLoader.LoadJs(["awakening/GameBoyIO"]);
+		FileLoader.LoadJs(["assets/rom/la_rom"]);
+		FileLoader.LoadJs(["assets/rom/la_savestate"]);
+
 		this.$canvas = document.createElement("canvas");
 
-		this.InitEmulator();
-		this.LoadSaveState();
-		this.InitInput();
-		this.InitDebugger();
+		window.setTimeout(function(){
+			PubSub.immediateExceptions = true;
+			
+			this.InitEmulator();
+			this.LoadSaveState();
+			this.InitInput();
+			this.InitDebugger();
+		}.bind(this),200);
 	},
 
 	this.InitEmulator = function() {
