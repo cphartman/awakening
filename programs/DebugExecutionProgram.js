@@ -79,7 +79,7 @@ var DebugExecutionProgram = function(emulation_core) {
 			}
 
 			// Play 1 frame
-			this.emulationCore.stopEmulator &= 1;
+			this.emulationCore.stopEmulator = 1;
 			
 			cout("Starting the iterator.", 0);
 			var dateObj = new Date();

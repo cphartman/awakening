@@ -14,8 +14,7 @@
 }
 
 .execution-row.current {
-	background-color: #F00;
-	color: #FFF;
+	border-top: 2px solid #F00;
 }
 
 .execution-label,

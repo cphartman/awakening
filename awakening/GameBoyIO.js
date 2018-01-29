@@ -62,6 +62,12 @@ function run() {
 				debugger;
 			}
 			gbRunInterval = setInterval(function () {
+				if( gameboy.stopEmulator & 2 ) {
+					clearInterval(gbRunInterval);
+					gbRunInterval = false;
+					return;
+				}
+
 				if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
 					gameboy.run();
 				}
