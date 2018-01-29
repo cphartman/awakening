@@ -9726,7 +9726,7 @@ GameBoyCore.OpCodeParameters = {
 		0xd4: 2,
 		0xdc: 2,
 
-		0xfe: 2
+		0xfe: 1
 };
 
 GameBoyCore.GetMemoryRegion = function(address) {
