@@ -20,6 +20,7 @@ Awakening = function(){
 		// Load emulation core
 		FileLoader.LoadJs(["emulation/core"]);
 		FileLoader.LoadJs(["emulation/EmulationSymbols"]);
+		FileLoader.LoadJs(["emulation/EmulationMetaData"]);
 
 		// Load awakening project files
 		FileLoader.LoadCss(["awakening/awakening"]);
