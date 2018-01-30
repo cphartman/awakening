@@ -4,6 +4,7 @@ Awakening = function(){
 	this.$canvas = false;
 	this.debugger = false;
 	this.programs = {};
+	this.$canvas = document.createElement("canvas");
 
 	this.Init = function() {
 
@@ -25,18 +26,14 @@ Awakening = function(){
 		FileLoader.LoadCss(["awakening/awakening"]);
 		FileLoader.LoadJs(["awakening/GameBoyIO"]);
 		FileLoader.LoadJs(["assets/rom/la_rom"]);
-		FileLoader.LoadJs(["assets/rom/la_savestate"]);
-
-		this.$canvas = document.createElement("canvas");
-
-		window.setTimeout(function(){
+		FileLoader.LoadJs(["assets/rom/la_savestate"], function(){
 			PubSub.immediateExceptions = true;
 			
 			this.InitEmulator();
 			this.LoadSaveState();
 			this.InitInput();
 			this.InitDebugger();
-		}.bind(this),200);
+		}.bind(this));
 	},
 
 	this.InitEmulator = function() {
