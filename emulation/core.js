@@ -885,6 +885,12 @@ GameBoyCore.prototype.initMemoryProxy = function() {
 				PubSub.publish('Debugger.JumpToCurrent');
 				PubSub.publish('Debugger.Memory.JumpTo', address);
 			}
+
+			// Early out to prevent write
+			if( this.speculative_execute ) {
+				return 1;
+			}
+
 			this.realMemory[address] = value;
 			return 1;
   		}.bind(this)
@@ -2235,17 +2241,72 @@ GameBoyCore.prototype.run = function () {
 	}
 }
 
+GameBoyCore.prototype.backup = {
+	registerA: false,
+	registerB: false,
+	registerC: false,
+	registerD: false,
+	registerE: false,
+	registersHL: false,
+
+	CPUTicks: false,
+	programCounter: false,
+	FZero: false,
+	FHalfCarry: false,
+	FSubtract: false,
+	FCarry: false,
+	doubleSpeedShifter: false,
+	stackPointer: false,
+	skipPCIncrement: false,
+	IRQEnableDelay: false,
+};
+
+GameBoyCore.prototype.BackupExecutionState = function() {
+	for( var i in this.backup ) {
+		this.backup[i] = this[i];
+	}
+}
+
+GameBoyCore.prototype.RevertExecutionState = function() {
+	
+	for( var i in this.backup ) {
+		this[i] = this.backup[i];
+	}
+}
+
+GameBoyCore.prototype.SpeculativeExecute = function() {
+	
+	this.speculative_execute = true;
+
+	this.BackupExecutionState();
+
+	var opcodeToExecute = this.memoryReader[this.programCounter](this, this.programCounter);
+	
+	//Increment the program counter to the next instruction:
+	this.programCounter = (this.programCounter + 1) & 0xFFFF;
+	//Check for the program counter quirk:
+	if (this.skipPCIncrement) {
+		this.programCounter = (this.programCounter - 1) & 0xFFFF;
+		this.skipPCIncrement = false;
+	}
+	//Get how many CPU cycles the current instruction counts for:
+	this.CPUTicks = this.TICKTable[opcodeToExecute];
+
+	this.OPCODE[opcodeToExecute](this);
+	
+	this.RevertExecutionState();
+
+	this.speculative_execute = false;
+}
+
 GameBoyCore.prototype.executeIteration = function () {
 	//Iterate the interpreter loop:
 	var opcodeToExecute = 0;
 	var timedTicks = 0;
 	while (this.stopEmulator == 0) {
 
-		// Check for halt execution interrupt
-		if( this.execution_breakpoint_halt ) {
-			this.execution_breakpoint_halt = false;
-		} else {
-			// Fire halt execution interrupt
+		if( !this.execution_breakpoint_halt ) {
+			// Check for execution breakpoint halt
 			if( this.debug_breakpoints.x[this.programCounter] ) {
 				this.execution_breakpoint_halt = true;
 				this.iterationEndRoutine();
@@ -2253,14 +2314,26 @@ GameBoyCore.prototype.executeIteration = function () {
 				PubSub.publish('Debugger.JumpToCurrent');
 				return;
 			}
+			
+		} else {
+			// Execution breakpoint interrupt last frame
+			this.execution_breakpoint_halt = false;
 		}
 
-		// Check for halt memory interrupt
-		if( this.memory_breakpoint_halt ) {
+		if( !this.memory_breakpoint_halt ) {
+
+			// Check for memory breakpoint halt
+			this.SpeculativeExecute();
+
+			if( this.memory_breakpoint_halt ) {
+				this.iterationEndRoutine();
+				pause();
+				PubSub.publish('Debugger.JumpToCurrent');
+				return;
+			}
+		} else {
+			// Memory breakpoint interrupt last frame
 			this.memory_breakpoint_halt = false;
-			this.iterationEndRoutine();
-			pause();
-			return;
 		}
 
 
@@ -3927,6 +4000,10 @@ GameBoyCore.prototype.checkIRQMatching = function () {
 	all the IRQ prediction cases and they usually get them wrong.
 */
 GameBoyCore.prototype.calculateHALTPeriod = function () {
+	if( this.speculative_execute ) {
+		return;
+	}
+
 	//Initialize our variables and start our prediction:
 	if (!this.halt) {
 		this.halt = true;
