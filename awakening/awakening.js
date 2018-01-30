@@ -18,9 +18,8 @@ Awakening = function(){
 		FileLoader.Load(["programs/DebugLCDProgram","programs/DebugMemoryProgram","programs/DebugStateProgram","programs/DebugExecutionProgram","programs/DebugBreakpointProgram"]);
 
 		// Load emulation core
-		FileLoader.LoadJs(["emulation/core"]);
+		FileLoader.LoadJs(["emulation/CoreOpCodes","emulation/CoreOpCodesCB","emulation/MetaData","emulation/core"]);
 		FileLoader.LoadJs(["emulation/EmulationSymbols"]);
-		FileLoader.LoadJs(["emulation/EmulationMetaData"]);
 
 		// Load awakening project files
 		FileLoader.LoadCss(["awakening/awakening"]);

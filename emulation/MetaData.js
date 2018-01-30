@@ -1,4 +1,4 @@
-GameBoyCore.OpCode = ["NOP","LD BC, nn","LD (BC), A","INC BC","INC B","DEC B","LD B, n","RLCA","LD (nn), SP",
+var MetaOpCode = ["NOP","LD BC, nn","LD (BC), A","INC BC","INC B","DEC B","LD B, n","RLCA","LD (nn), SP",
 	"ADD HL, BC","LD A, (BC)","DEC BC","INC C","DEC C","LD C, n","RRCA","STOP","LD DE, nn","LD (DE), A","INC DE",
 	"INC D","DEC D","LD D, n","RLA","JR n","ADD HL, DE","LD A, (DE)","DEC DE","INC E","DEC E","LD E, n","RRA",
 	"JR NZ, n","LD HL, nn","LDI (HL), A","INC HL","INC H","DEC H","LD H, n","DAA","JR Z, n","ADD HL, HL","LDI A, (HL)",
@@ -47,7 +47,7 @@ GameBoyCore.OpCode = ["NOP","LD BC, nn","LD (BC), A","INC BC","INC B","DEC B","L
 	"SET 6, B","SET 6, C","SET 6, D","SET 6, E","SET 6, H","SET 6, L","SET 6, (HL)","SET 6, A","SET 7, B","SET 7, C",
 	"SET 7, D","SET 7, E","SET 7, H","SET 7, L","SET 7, (HL)","SET 7, A"];
 
-GameBoyCore.OpCodeParameters = {
+var MetaOpCodeParameters = {
 		0x06: 1,
 		0x0e: 1,
 		0x16: 1,
@@ -102,7 +102,7 @@ GameBoyCore.OpCodeParameters = {
 		0xfe: 1
 };
 
-GameBoyCore.GetMemoryRegion = function(address) {
+var MetaGetMemoryRegion = function(address) {
 	for( var i = 0; i < GameBoyCore.MemoryRegions.length; i++ ) {
 		if( address < GameBoyCore.MemoryRegions[i].end ) {
 			return GameBoyCore.MemoryRegions[i].label;
@@ -112,7 +112,7 @@ GameBoyCore.GetMemoryRegion = function(address) {
 	return " BAD";
 }
 
-GameBoyCore.MemoryRegions = [{
+var MetaMemoryRegions = [{
 		end: 0x4000,
 		label: "ROM0"
 	},{
