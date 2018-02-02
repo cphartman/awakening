@@ -36,8 +36,12 @@ var Window = function() {
 	}
 
 	this.Refresh = function() {
+		var offset = window.innerWidth/2 - 470;
+		if( offset < 0 ) {
+			offset = 0;
+		}
 		this.$window.style['top'] = this.top+"px";
-		this.$window.style['left'] = this.left+"px";
+		this.$window.style['left'] = (this.left+offset)+"px";
 		this.$window.style['width'] = this.width+"px";
 		this.$window.style['height'] = this.height+"px";
 
