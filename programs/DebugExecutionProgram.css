@@ -6,6 +6,7 @@
 	width: 100%;
 	font-family: monospace;
 	overflow: hidden;
+	padding-left: 5px;
 }
 
 .execution-row {

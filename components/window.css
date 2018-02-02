@@ -1,5 +1,44 @@
 .window {
 	position: absolute;
 	overflow: hidden;
-	border: 1px solid #000;
+	padding: 2px 2px 2px 2px;
+	box-sizing: border-box;
+}
+
+.window .window-padding {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	box-shadow: 0px 0px 3px #0031cb;
+	border-radius: 5px;
+	border-top-right-radius: 0px;
+	border-top-left-radius: 0px;
+	overflow: hidden;
+}
+
+.window .window-titleBar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 20px;
+	background-color: #3d5aff;
+	border: 1px solid #0031cb;
+	border-top: 4px solid #0031cb;
+}
+
+.window .window-titleName {
+	color: #FFF;
+	font-family: 'Roboto', monospaced;
+	padding: 2px 0 0 4px;
+	font-size: 10px;
+	text-transform: uppercase;
+}
+
+.window .program-window {
+	position: absolute;
+	top: 20px;
+	left: 0;
+	width: 100%;
+	height: calc(100% - 20px);
 }

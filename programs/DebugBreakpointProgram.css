@@ -1,6 +1,7 @@
 .debug-breakpoint-window .breakpoint-row > *{
 	display: inline-block;
 	line-height: 20px;
+	padding-left: 5px;
 }
 
 .debug-breakpoint-window {
