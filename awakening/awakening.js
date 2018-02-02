@@ -16,7 +16,7 @@ Awakening = function(){
 		FileLoader.Load(["components/window","components/scrollbar","components/popup","components/tooltip"]);
 		
 		// Load Window Programs
-		FileLoader.Load(["programs/DebugLCDProgram","programs/DebugMemoryProgram","programs/DebugStateProgram","programs/DebugExecutionProgram","programs/DebugBreakpointProgram"]);
+		FileLoader.Load(["programs/DebugLCDProgram","programs/DebugMemoryProgram","programs/DebugStateProgram","programs/DebugExecutionProgram","programs/DebugBreakpointProgram","programs/DebugSymbolProgram"]);
 
 		// Load emulation core
 		FileLoader.LoadJs(["emulation/CoreOpCodes","emulation/CoreOpCodesCB","emulation/MetaData","emulation/core"]);
@@ -55,6 +55,7 @@ Awakening = function(){
 		this.programs['execution'] = DebugProgramFactory.Create("execution");
 		this.programs['state'] = DebugProgramFactory.Create("state");
 		this.programs['breakpoint'] = DebugProgramFactory.Create("breakpoint");
+		this.programs['symbol'] = DebugProgramFactory.Create("symbol");
 
 		// Position windows on Debugger.Refresh
 		PubSub.subscribe("Debugger.Refresh", function() {
@@ -64,9 +65,10 @@ Awakening = function(){
 			}
 		}.bind(this));
 
-	
-		PubSub.publish('Debugger.Refresh');
-		PubSub.publish('Debugger.JumpToCurrent');
+		window.setTimeout(function(){
+			PubSub.publish('Debugger.Refresh');
+			PubSub.publish('Debugger.JumpToCurrent');
+		},50);
 	}
 
 	this.PositionDebugWindows = function() {
@@ -82,16 +84,6 @@ Awakening = function(){
 		this.programs['lcd'].window.width = 160;
 		this.programs['lcd'].window.height = 144;
 		
-		this.programs['memory'].window.top = Math.floor(screen_height*.5);
-		this.programs['memory'].window.left = 160;
-		this.programs['memory'].window.width = 800;
-		this.programs['memory'].window.height = Math.floor(screen_height*.5);
-		
-		this.programs['execution'].window.top = 0;
-		this.programs['execution'].window.left = 160;
-		this.programs['execution'].window.width = 800;
-		this.programs['execution'].window.height = Math.floor(screen_height*.5);	
-
 		this.programs['breakpoint'].window.top = 144;
 		this.programs['breakpoint'].window.left = 0;
 		this.programs['breakpoint'].window.width = 160;
@@ -101,6 +93,21 @@ Awakening = function(){
 		this.programs['state'].window.left = 0;
 		this.programs['state'].window.width = 160;
 		this.programs['state'].window.height = Math.floor(screen_height*.5);
+
+		this.programs['memory'].window.top = Math.floor(screen_height*.5);
+		this.programs['memory'].window.left = 160;
+		this.programs['memory'].window.width = 600;
+		this.programs['memory'].window.height = Math.floor(screen_height*.5);
+		
+		this.programs['execution'].window.top = 0;
+		this.programs['execution'].window.left = 160;
+		this.programs['execution'].window.width = 400;
+		this.programs['execution'].window.height = Math.floor(screen_height*.5);	
+
+		this.programs['symbol'].window.top = 0;
+		this.programs['symbol'].window.left = 560;
+		this.programs['symbol'].window.width = 200;
+		this.programs['symbol'].window.height = Math.floor(screen_height*.5);	
 	}
 
 	this.IsReady = function() {

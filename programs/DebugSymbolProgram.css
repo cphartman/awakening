@@ -1,0 +1,27 @@
+.debug-symbol-window {
+	padding-left: 5px;
+}
+
+.symbol-group,
+.symbol-name,
+.symbol-address,
+.symbol-value {
+	display: inline-block;
+}
+
+.symbol-row {
+	line-height: 20px;
+}
+
+.debug-symbol-window .tooltip::after {
+	display: none;
+}
+
+.symbol-name {
+	width: 45%;
+}
+
+.symbol-value {
+	text-align: right;
+	width: 10%;
+}

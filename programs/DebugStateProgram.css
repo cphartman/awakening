@@ -4,7 +4,7 @@
 	left: 0;
 	height: 100%;
 	width: 100%;
-	font-family: monospace;
+	font-family: 'Roboto Mono';
 	overflow: hidden;
 	padding-left: 5px;
 }
@@ -37,7 +37,9 @@
 }
 
 .debug-state-window .debug-flag.on {
-	background-color: #F00;
+	background-color: #d50000;
+	color: #FFF;
+	font-weight: bold;
 }
 
 .debug-state-window .debug-stack {
