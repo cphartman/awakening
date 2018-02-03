@@ -88,9 +88,6 @@ var DebugMemoryProgram = function(emulation_core) {
 
 				PubSub.publish("Debugger.Memory.Select", address);
 			}
-
-			// Prevent the popup from closing
-			return false;
 		});
 
 		$(this.window.$el).on("contextmenu", ".memory-value", function(event){
