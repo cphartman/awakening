@@ -23,9 +23,6 @@ var DebugBreakpointProgram = function(emulation_core) {
                 </div>
                 <div class='execution-remove'>❌</div>
             </div>
-            <div class='breakpoint-row new-breakpoint'>
-                <button class='breakpoint-new'>➕</button>
-            </div>
         </div>
 	`;
 

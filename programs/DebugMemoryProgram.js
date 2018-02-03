@@ -10,7 +10,12 @@ var DebugMemoryProgram = function(emulation_core) {
 	this.selectedAddress = -1;
 	this.template = `
 		<div class="debug-memory-window">
-            <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address" >
+            <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address">
+            	<div class='symbol-row' v-if="row.symbols.length">
+            		<span class='symbol memory-link' v-for="symbol in row.symbols" v-bind:data-address="symbol.address" v-bind:style="{left: symbol.left}">
+						{{symbol.hex}}	
+            		</span>
+				</div>
                 <div class='memory-label'>{{row.label}}</div>
                 <div class='memory-address'>{{row.address}}</div>
                 <div class='memory-values'>
@@ -176,7 +181,8 @@ var DebugMemoryProgram = function(emulation_core) {
 			this.view.memory_rows[i] = {
 				label: GameBoyCore.GetMemoryRegion(address),
 				address: int2hex(address,4),
-				columns: []
+				columns: [],
+				symbols: [],
 			}
 
 			for( var m = 0; m < 16; m++ ) {
@@ -187,10 +193,26 @@ var DebugMemoryProgram = function(emulation_core) {
 					address: int2hex(column_address,4),
 					value: int2hex(value,2),
 					selected: ( this.selectedAddress == column_address),
-					breakpoint: ( breakpoint_map[column_address] ? true : false )
+					breakpoint: ( breakpoint_map[column_address] ? true : false ),
+
 				};
+
+				var symbol = EmulationSymbols.Lookup(column_address);
+				if( symbol ) {
+					var left = (column_address % 16) * 24.5 + 85;
+					this.view.memory_rows[i].symbols.push({
+						address:column_address,
+						label:symbol,
+						hex: int2hex(column_address,4),
+						left: left+"px"
+					});
+				}
 			}
 		}
+
+		Vue.nextTick(function(){
+			DebugProgramFactory.SetupSymbols(this);
+		}.bind(this));
 	}
 
 	this.domEvents = {
