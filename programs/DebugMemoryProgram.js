@@ -114,6 +114,7 @@ var DebugMemoryProgram = function(emulation_core) {
 					switch(label) {
 						case 'breakpoint':
 							PubSub.publish("Debugger.Breakpoint.Update",{address:this.popup.settings.address, settings:{r:true,w:true}});
+							PubSub.publish('Debugger.Refresh');
 							break;
 					}
 				}.bind(this)
