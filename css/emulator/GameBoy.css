@@ -448,3 +448,16 @@ ul.menu > li:hover > ul.menu {
 	display: block;
 	display: inline-block;
 }
+
+.debug-toolbar {
+	background-color: #a0a0a0;
+}
+
+#memory-out {
+	display: block;
+	font-family: monospace;
+}
+
+#memory-start {
+	width: 100%;
+}

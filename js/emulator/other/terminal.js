@@ -1,4 +1,6 @@
 function cout(message, colorIndex) {
+	//console.log(message);
+
 	var terminal_output = document.getElementById("terminal_output");
 	if ((colorIndex != 0 || DEBUG_MESSAGES) && (colorIndex != -1 || DEBUG_WINDOWING)) {
 		var lineout = document.createElement('span');

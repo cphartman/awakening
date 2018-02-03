@@ -24,6 +24,7 @@ function windowingInitialize() {
 	windowStacks[7] = windowCreate("local_storage_listing", false);
 	windowStacks[8] = windowCreate("freeze_listing", false);
 	windowStacks[9] = windowCreate("save_importer", false);
+	windowStacks[10] = windowCreate("debug-rom-window", false);
 	mainCanvas = document.getElementById("mainCanvas");
 	fullscreenCanvas = document.getElementById("fullscreen");
 	try {
@@ -320,7 +321,70 @@ function registerGUIEvents() {
 	addEvent("unload", window, function () {
 		autoSave();
 	});
+
+
+	new popupMenu(document.getElementById("GameBoy_debug_menu"), document.getElementById("GameBoy_debug_popup"));
+	addEvent("click", document.getElementById("show_rom_viewer"), function () { 
+		windowStacks[10].show();
+		DebugMemoryInit();
+	});
+
+	window.setTimeout(function(){
+		windowStacks[10].show();
+		DebugMemoryInit()
+	},2000);
+
+	document.querySelector("#memory-start").addEventListener('change',DebugMemoryUpdate);
+
+	/*
+	$("#memory-next").click(function(){
+		var val = parseInt($("#memory-start").val(),16);
+		val += 16*16;
+		val = val.toString(16).toUpperCase();
+		while( val.length < 4 ) {
+			val = "0"+val;
+		}
+		$("#memory-start").val(val);
+		
+		var start = parseInt(val,16);
+		var length = 16;
+		var val_found = false;
+		
+		for( var y = 0; y < length; y++ ) {
+			for( var x = 0; x < 16; x++ ) {
+				if( gameboy.memory[start+(y*16)+x] ) {
+					val_found = true;
+				};
+			}
+		}
+		
+		if( !val_found ) {
+			window.setTimeout(function() { $("#memory-next").click(); }, 1 );
+		}
+		
+		return false;
+	});
+
+	
+	$("#memory-prev").click(function(){
+		var val = parseInt($("#memory-start").val(),16);
+		val -= 16*16;
+		if( val < 0 ) val = 0;
+		$("#memory-start").val( int2hex(val,4) )
+		return false;
+	});
+	
+	$("#memory-change-btn").click(function(){
+		if( gameboy && gameboy.memory ) {
+			var addr = parseInt($("#memory-change-addr").val(),16);
+			if( addr > 0 && addr < gameboy.memory.length ) {
+				gameboy.memory[addr] = $("#memort-change-val").val();
+			}
+		}
+	});*/
 }
+
+
 function keyDown(event) {
 	var keyCode = event.keyCode;
 	var keyMapLength = keyZones.length;
