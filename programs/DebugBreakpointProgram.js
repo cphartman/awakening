@@ -44,9 +44,6 @@ var DebugBreakpointProgram = function(emulation_core) {
 		this.window.$el = this.view.$el;
 		this.$window = this.view.$el.querySelector('.debug-breakpoint-window');
 
-		this.AddBreakpoint(0xdb00, {});
-		this.AddBreakpoint(0x63f7, {});
-
 		PubSub.publish("Debugger.Breakpoints.Set", this.breakpoints);
 
 		$(this.$window).on("change",".execution-settings input",function(e){
@@ -64,12 +61,19 @@ var DebugBreakpointProgram = function(emulation_core) {
 		});
 
 		PubSub.subscribe("Debugger.Breakpoint.Update", function(msg,data){
+			var found = false;
 			for( var i in this.breakpoints ) {
 				var breakpoint = this.breakpoints[i];
 				if( breakpoint.address == data.address ) {
 					this.breakpoints[i][data.setting] = data.value;
+					found = true;
 					break;
 				}
+			}
+
+			if( !found ) {
+				this.AddBreakpoint(data.address, data.settings);
+				PubSub.publish("Debugger.Breakpoints.Set", this.breakpoints);
 			}
 
 			this.emulationCore.CompileBreakpoints(this.breakpoints);

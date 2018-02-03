@@ -96,7 +96,7 @@ var DebugMemoryProgram = function(emulation_core) {
 
 			PubSub.publish("Debugger.Memory.Select", address);
 
-			var p = new Popup({
+			this.popup = new Popup({
 				template: `
 					<ul>
 						<li data-click='breakpoint'>Add Breakpoint</li>
@@ -104,10 +104,11 @@ var DebugMemoryProgram = function(emulation_core) {
 						<li data-click='value'>Edit Value</li>
 					</ul>
 				`,
+				address: address,
 				clickHandler: function(label){
 					switch(label) {
 						case 'breakpoint':
-							console.log("Breakpoint Clicked");
+							PubSub.publish("Debugger.Breakpoint.Update",{address:this.popup.settings.address, settings:{r:true,w:true}});
 							break;
 					}
 				}.bind(this)
