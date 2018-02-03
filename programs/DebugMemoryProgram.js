@@ -65,19 +65,20 @@ var DebugMemoryProgram = function(emulation_core) {
 
 			if( selected ) {
 				this.popup = new Popup({
-					value: true,
-					$target: this,
-					callback: function() {
-						var address_hex = this.popup.settings.$target.getAttribute("data-address");
+					template: "<input>",
+					target: this,
+					address: this.getAttribute("data-address"),
+					changeHandler: function() {
+						var address_hex = this.popup.settings.address;
 						var address = parseInt(address_hex, 16);
 						var value_hex = this.popup.$input.value;
-						var value = parseInt(value_hex, 16);
+						var value_int = parseInt(value_hex, 16);
 
 						// Clamp value
-						value = (value > 0xff ? 0xff : value);
-						value = (value < 0 ? 0 : value);
+						value_int = (value_int > 0xff ? 0xff : value_int);
+						value_int = (value_int < 0 ? 0 : value_int);
 						
-						DebugWriteMemory(address, value);
+						DebugWriteMemory(address, value_int);
 						PubSub.publish('Debugger.Refresh');
 					}.bind(this)
 				})
@@ -87,6 +88,35 @@ var DebugMemoryProgram = function(emulation_core) {
 
 				PubSub.publish("Debugger.Memory.Select", address);
 			}
+
+			// Prevent the popup from closing
+			return false;
+		});
+
+		$(this.window.$el).on("contextmenu", ".memory-value", function(event){
+			var hex_address_str = this.getAttribute("data-address");
+			var address = parseInt(hex_address_str,16);
+
+			PubSub.publish("Debugger.Memory.Select", address);
+
+			var p = new Popup({
+				template: `
+					<ul>
+						<li data-click='breakpoint'>Add Breakpoint</li>
+						<li data-click='symbol'>Add Symbol</li>
+						<li data-click='value'>Edit Value</li>
+					</ul>
+				`,
+				clickHandler: function(label){
+					switch(label) {
+						case 'breakpoint':
+							console.log("Breakpoint Clicked");
+							break;
+					}
+				}.bind(this)
+			});
+
+			return false;
 		});
 
 	}

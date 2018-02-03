@@ -16,3 +16,21 @@
 	border: 1px solid #000;
 	border-radius: 2px;
 }
+.popup ul li {
+	white-space: nowrap;
+	cursor: pointer;
+	display: block;
+	padding: 5px 10px;
+}
+
+
+.popup ul li:hover {
+	background-color: #3d5aff;
+	color: #FFF;
+}
+
+.popup ul {
+	box-shadow: 1px 1px 3px #000, inset 1px 1px 0 #777;
+	background-color: #ccc;
+	padding: 0;
+}

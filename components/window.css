@@ -44,6 +44,7 @@
 	padding: 2px 0 0 4px;
 	font-size: 10px;
 	text-transform: uppercase;
+	cursor: default;
 }
 
 .window .program-window {
