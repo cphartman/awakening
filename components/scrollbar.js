@@ -7,6 +7,9 @@ var Scrollbar = function() {
 	this.rowHeight = 20;
 	this.preventCallback = false;
 
+	this.valueTarget = 0;
+	this.valueTargetSpeed = 2;
+
 	this.Init = function($window, height) {
 		this.height = height;
 		this.$window = $window;
@@ -32,7 +35,13 @@ var Scrollbar = function() {
 			
 			// Update scroll position for mouse wheel events captured on the window
 			if( e.type == "mousewheel" ) {
-				this.Set(this.value + parseInt(e.deltaY/2));	
+				var interval = this.height *.00001;
+				var offset = Math.floor(Math.abs(interval*e.deltaY)+.5);
+				var direction = ( e.deltaY > 0 ? 1 : -1 );
+
+				var new_val = this.value + offset*direction;
+				
+				this.setTarget(new_val);	
 			}
 
 			this.callback.apply();
@@ -44,11 +53,33 @@ var Scrollbar = function() {
 		return this.value;
 	}
 
+	this.setTarget = function(value, speed) {
+		if( typeof speed != 'undefined' ) {
+			this.valueTargetSpeed = speed;
+		}
+
+		this.valueTarget = Math.ceil(value);
+		this.setTargetCallback();
+	}
+
+	this.setTargetCallback = function() {
+		console.log(this.valueTarget + " " + this.value );
+		if( this.valueTarget != Math.floor(this.value) ) {
+			if( this.value < this.valueTarget ) {	
+				this.Set(this.value+1);
+			} else {
+				this.Set(this.value-1);
+			}
+			this.callback.apply();
+			window.setTimeout(this.setTargetCallback.bind(this), this.valueTargetSpeed);
+		}
+	}
+
 	this.Set = function(value) {
 		// Prevent scroll event triggering
 		this.preventCallback = true;
 
-		this.value = value;
+		this.value = Math.floor(value);
 		this.$el.scrollTop = this.value*this.rowHeight;
 	}
 }
