@@ -204,7 +204,7 @@ var DebugMemoryProgram = function(emulation_core) {
 		}
 
 		this.selectedAddress = address;
-		this.scrollbar.Set(this.addressTop);
+		this.scrollbar.Set(this.addressTop/16);
 		this.Refresh();
 			
 	}
