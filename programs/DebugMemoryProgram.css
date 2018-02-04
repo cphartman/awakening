@@ -52,7 +52,7 @@
 
 .memory-value {
 	display: inline-block;
-	padding: 0 5px;
+	padding: 0 7px;
 }
 .memory-value.selected {
 	background-color: rgba(255,0,0,.2);

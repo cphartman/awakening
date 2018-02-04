@@ -13,6 +13,10 @@
 	line-height: 20px;
 }
 
+.symbol-row.selected {
+	background-color: rgba(255,0,0,.2);
+}
+
 .debug-symbol-window .tooltip::after {
 	display: none;
 }

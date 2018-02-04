@@ -25,6 +25,62 @@ var DebugMemoryProgram = function(emulation_core) {
         </div>
 	`;
 
+	this.Refresh = function() {
+		var row_height = 20;
+		
+		var window_height = this.$window.offsetHeight;
+		row_count = Math.floor(window_height / row_height);
+		
+		var breakpoint_map = {};
+		for( var i in this.breakpoints ) {
+			var breakpoint = this.breakpoints[i];
+			if( breakpoint.r || breakpoint.w ) {
+				breakpoint_map[breakpoint.address] = true;
+			}
+		}
+
+		this.view.memory_rows = [];
+		for( var i = 0; i < row_count; i++ ) {
+
+			var address = this.addressTop + i*16;
+
+			this.view.memory_rows[i] = {
+				label: GameBoyCore.GetMemoryRegion(address),
+				address: int2hex(address,4),
+				columns: [],
+				symbols: [],
+			}
+
+			for( var m = 0; m < 16; m++ ) {
+				var column_address = address+m;
+
+				var value = DebugReadMemory(column_address);
+				this.view.memory_rows[i].columns[m] = {
+					address: int2hex(column_address,4),
+					value: int2hex(value,2),
+					selected: ( this.selectedAddress == column_address),
+					breakpoint: ( breakpoint_map[column_address] ? true : false ),
+
+				};
+
+				var symbol = EmulationSymbols.Lookup(column_address);
+				if( symbol ) {
+					var left = (column_address % 16) * 28.5 + 85;
+					this.view.memory_rows[i].symbols.push({
+						address:column_address,
+						label:symbol,
+						hex: int2hex(column_address,4),
+						left: left+"px"
+					});
+				}
+			}
+		}
+
+		Vue.nextTick(function(){
+			DebugProgramFactory.SetupSymbols(this);
+		}.bind(this));
+	}
+
 	this.Init = function() {
 
 		var $vue_node =  this.window.$el;
@@ -116,7 +172,20 @@ var DebugMemoryProgram = function(emulation_core) {
 							PubSub.publish("Debugger.Breakpoint.Update",{address:this.popup.settings.address, settings:{r:true,w:true}});
 							PubSub.publish('Debugger.Refresh');
 							break;
+						case 'symbol':
+							EmulationSymbols.Update({
+								address: this.popup.settings.address,
+								label: "Symbol",
+								type: "Memory",
+								namespace: ""
+							});
+							PubSub.publish("Debugger.Refresh");
+							window.setTimeout(function(){
+								//PubSub.publish("Debugger.Symbol.Edit",this.popup.settings.address);
+							}.bind(this),1);
+							break;
 					}
+							
 				}.bind(this)
 			});
 
@@ -158,62 +227,6 @@ var DebugMemoryProgram = function(emulation_core) {
 			}
 
 		});
-	}
-
-	this.Refresh = function() {
-		var row_height = 20;
-		
-		var window_height = this.$window.offsetHeight;
-		row_count = Math.floor(window_height / row_height);
-		
-		var breakpoint_map = {};
-		for( var i in this.breakpoints ) {
-			var breakpoint = this.breakpoints[i];
-			if( breakpoint.r || breakpoint.w ) {
-				breakpoint_map[breakpoint.address] = true;
-			}
-		}
-
-		this.view.memory_rows = [];
-		for( var i = 0; i < row_count; i++ ) {
-
-			var address = this.addressTop + i*16;
-
-			this.view.memory_rows[i] = {
-				label: GameBoyCore.GetMemoryRegion(address),
-				address: int2hex(address,4),
-				columns: [],
-				symbols: [],
-			}
-
-			for( var m = 0; m < 16; m++ ) {
-				var column_address = address+m;
-
-				var value = DebugReadMemory(column_address);
-				this.view.memory_rows[i].columns[m] = {
-					address: int2hex(column_address,4),
-					value: int2hex(value,2),
-					selected: ( this.selectedAddress == column_address),
-					breakpoint: ( breakpoint_map[column_address] ? true : false ),
-
-				};
-
-				var symbol = EmulationSymbols.Lookup(column_address);
-				if( symbol ) {
-					var left = (column_address % 16) * 24.5 + 85;
-					this.view.memory_rows[i].symbols.push({
-						address:column_address,
-						label:symbol,
-						hex: int2hex(column_address,4),
-						left: left+"px"
-					});
-				}
-			}
-		}
-
-		Vue.nextTick(function(){
-			DebugProgramFactory.SetupSymbols(this);
-		}.bind(this));
 	}
 
 	this.domEvents = {

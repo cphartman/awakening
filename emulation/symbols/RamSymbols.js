@@ -1,3 +1,49 @@
+var EmulatorSymbolList = [
+	{
+		address: 0xdb00,
+		type: "Memory",
+		label: "Weapon B",
+		namespace: "Link"
+	},{
+		address: 0xdb01,
+		type: "Memory",
+		label: "Weapon B",
+		namespace: "Link"
+	},{
+		address: 0xdb02,
+		type: "Memory",
+		label: "Inv 1",
+		namespace: "Link"
+	},{
+		address: 0xdb03,
+		type: "Memory",
+		label: "Inv 2",
+		namespace: "Link"
+	},
+
+	{
+		address: 0xff98,
+		type: "Memory",
+		label: "Pos X",
+		namespace: "Link"
+	},{
+		address: 0xff99,
+		type: "Memory",
+		label: "Pos Y",
+		namespace: "Link"
+	},{
+		address: 0xdb5a,
+		type: "Memory",
+		label: "HP",
+		namespace: "Link"
+	},{
+		address: 0xdb5b,
+		type: "Memory",
+		label: "Max HP",
+		namespace: "Link"
+	},
+];
+
 var RamSymbols = {
 // Inventory
 	0xdb00: "Weapon B",
