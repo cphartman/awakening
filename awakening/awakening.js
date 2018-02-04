@@ -16,10 +16,10 @@ Awakening = function(){
 		FileLoader.Load(["components/window","components/scrollbar","components/popup","components/tooltip"]);
 		
 		// Load Window Programs
-		FileLoader.Load(["programs/DebugLCDProgram","programs/DebugMemoryProgram","programs/DebugStateProgram","programs/DebugExecutionProgram","programs/DebugBreakpointProgram","programs/DebugSymbolProgram"]);
+		FileLoader.Load(["programs/DebugLCDProgram","programs/DebugMemoryProgram","programs/DebugStateProgram","programs/DebugExecutionProgram","programs/DebugBreakpointProgram","programs/DebugSymbolProgram","programs/DebugTraceProgram"]);
 
 		// Load emulation core
-		FileLoader.LoadJs(["emulation/CoreOpCodes","emulation/CoreOpCodesCB","emulation/MetaData","emulation/core"]);
+		FileLoader.LoadJs(["emulation/CoreOpCodes","emulation/CoreOpCodesCB","emulation/MetaData","emulation/core", "emulation/coreAudio"]);
 		FileLoader.LoadJs(["emulation/EmulationSymbols"]);
 
 		// Load awakening project files
@@ -34,6 +34,8 @@ Awakening = function(){
 			this.InitInput();
 			this.InitDebugger();
 		}.bind(this));
+
+		window.addEventListener("resize", this.PositionDebugWindows.bind(this));
 	},
 
 	this.InitEmulator = function() {
@@ -56,6 +58,7 @@ Awakening = function(){
 		this.programs['state'] = DebugProgramFactory.Create("state");
 		this.programs['breakpoint'] = DebugProgramFactory.Create("breakpoint");
 		this.programs['symbol'] = DebugProgramFactory.Create("symbol");
+		this.programs['trace'] = DebugProgramFactory.Create("trace");
 
 		// Position windows on Debugger.Refresh
 		PubSub.subscribe("Debugger.Refresh", function() {
@@ -107,7 +110,12 @@ Awakening = function(){
 		this.programs['symbol'].window.top = 0;
 		this.programs['symbol'].window.left = 560;
 		this.programs['symbol'].window.width = 200;
-		this.programs['symbol'].window.height = Math.floor(screen_height*.5);	
+		this.programs['symbol'].window.height = Math.floor(screen_height*.5);
+
+		this.programs['trace'].window.top = 0;
+		this.programs['trace'].window.left = -160;
+		this.programs['trace'].window.width = 160;
+		this.programs['trace'].window.height = Math.floor(screen_height*.5);	
 	}
 
 	this.IsReady = function() {

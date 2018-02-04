@@ -8,7 +8,7 @@ var DebugExecutionProgram = function(emulation_core) {
 	this.template = `
 		<div class='debug-execution-window'>
             <div class='execution-toolbar'>
-                <button class='execution-play'>►</button>
+                <button class='execution-play selected'>►</button>
                 <button class='execution-pause'>‖</button>
                 <button class='execution-step'>→</button>
             </div>

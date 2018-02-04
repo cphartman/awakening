@@ -31,3 +31,8 @@
 .execution-opcode {
 	width: 20%;
 }
+
+
+.execution-play.selected {
+	background-color: rgba(0,255,0, .2);
+}

@@ -3,11 +3,12 @@ var DebugSymbolProgram = function(emulation_core) {
 	this.stackTop = 0;
 	this.emulationCore = emulation_core;
 	this.view = false;
+
 	this.template = `
 		<div class='debug-symbol-window'>
 		    <div class='symbol-list'>
 		    	<div class='namespace-list'>
-		    		<select class='namespace'>
+		    		<select class='namespace' v-model='currentNamespace' v-on:change='NamespaceChange'>
 		    			<option v-for='namespace in namespaces'>{{namespace}}</option>
 		    		</select>
 		        <div class='symbol-row' v-for="symbol in symbols" v-bind:data-address="symbol.address">
@@ -27,7 +28,17 @@ var DebugSymbolProgram = function(emulation_core) {
 		  data: {
 		  	namespaces: [],
 		  	symbols: [],
-		  }
+		  	currentNamespace: false,
+		  },
+		  methods: {
+		  		NamespaceChange: function() {
+					$(this.$window).find(".selected").removeClass("selected");
+					this.Refresh();
+		  		}.bind(this),
+		  		Refresh: function() {
+		  			this.Refresh();
+		  		}.bind(this)
+		  	}
 		});
 
 		// Vue destroys the original window dom element, restore the reference
@@ -87,27 +98,47 @@ var DebugSymbolProgram = function(emulation_core) {
 	}
 
 	this.Refresh = function() {
+		this.RefreshNamespaces();
+		this.RefreshSymbols();
+	}
+
+	this.RefreshSymbols = function() {
+
+		var symbols = EmulationSymbols.GetAll();
+		var namespaces = {};
 
 		this.view.symbols = [];
-		if( typeof RamSymbols != 'undefined' ) {
-			for( var i in EmulatorSymbolList ) {
-				var symbol = EmulatorSymbolList[i];
+		for( var i in symbols ) {
+			var symbol = symbols[i];
+			if( symbol.namespace == this.view.currentNamespace ) {
 				var address = symbol.address;
 				var s = {
-					group: GameBoyCore.GetMemoryRegion(address),
 					label: symbol.label,
 					address: int2hex(address,4),
 					value: int2hex(DebugReadMemory(address),2)
 				};
 				this.view.symbols.push(s);
 			}
+			
+		}
+	}
 
-			this.view.namespaces = [];
+	this.RefreshNamespaces = function() {
+		var symbols = EmulationSymbols.GetAll();
+		var namespaces = {};
 
-			for( var i in EmulationSymbols.namespaces ) {
-				var namespace = EmulationSymbols.namespaces[i];
-				this.view.namespaces.push(namespace);
-			}
+		for( var i in symbols ) {
+			var symbol = symbols[i];
+			namespaces[symbol.namespace] = 1;
+		}
+
+		this.view.namespaces = [];
+		for( var namespace in namespaces ) {
+			this.view.namespaces.push(namespace);
+		}
+
+		if( this.view.currentNamespace == false && this.view.namespaces.length ) {
+			this.view.currentNamespace = this.view.namespaces[0];
 		}
 	}
 }

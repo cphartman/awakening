@@ -85,7 +85,7 @@ function run() {
 function pause() {
 	if (GameBoyEmulatorInitialized()) {
 		if (GameBoyEmulatorPlaying()) {
-			autoSave();
+			//autoSave();
 			clearLastEmulation();
 		}
 		else {

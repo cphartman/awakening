@@ -2,9 +2,13 @@ var EmulationSymbols = (function(){
 	
 	this.symbolList = [];
 
+	this.GetAll = function() {
+		return this.symbolList;
+	}
+
 	this.Init = function() {
-		FileLoader.LoadJs(["emulation/symbols/RamSymbols"], function(){
-			this.symbolList = EmulatorSymbolList;
+		FileLoader.LoadJs(["emulation/symbols/ExportedSymbols"], function(){
+			this.symbolList = ExportedSymbols;
 
 		}.bind(this));
 	};

@@ -1,0 +1,20 @@
+
+.symbol-group,
+.symbol-name,
+.symbol-address,
+.symbol-value {
+	display: inline-block;
+}
+
+.trace-row {
+	line-height: 20px;
+}
+
+.trace-stop:hover,
+.trace-stop.selected {
+	background-color: rgba(255,0,0,.2);
+}
+
+.trace-start.selected {
+	background-color: rgba(0,255,0,.4);
+}
