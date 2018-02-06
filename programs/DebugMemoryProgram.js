@@ -33,7 +33,7 @@ var DebugMemoryProgram = function(emulation_core) {
 		row_count = Math.floor(window_height / row_height);
 		
 		var breakpoint_map = {};
-		for( var i in this.breakpoints ) {
+		for( i = 0; i < this.breakpoints.length; i++ ) {
 			var breakpoint = this.breakpoints[i];
 			if( breakpoint.r || breakpoint.w ) {
 				breakpoint_map[breakpoint.address] = true;
@@ -108,6 +108,7 @@ var DebugMemoryProgram = function(emulation_core) {
 			this.JumpTo(data);
 			this.Refresh();
 		}.bind(this));
+
 
 		PubSub.subscribe("Debugger.Memory.Select",function (msg, data) {
 			this.selectedAddress = data;

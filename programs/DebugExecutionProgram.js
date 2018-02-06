@@ -13,7 +13,7 @@ var DebugExecutionProgram = function(emulation_core) {
                 <button class='execution-pause'>‖</button>
                 <button class='execution-step'>→</button>
             </div>
-            <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current, selected: row.selected }" v-bind:data-address="row.address">
+            <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current, selected: row.selected }" v-bind:data-bank="row.bank" v-bind:data-address="row.address">
                 <div class='execution-label'>{{row.label}}</div>
                 <div class='execution-address'>{{row.address}}</div>
                 <div class='execution-opcode'>{{row.opcode}}</div>
@@ -74,6 +74,7 @@ var DebugExecutionProgram = function(emulation_core) {
 		'contextMenu': function(event){
 			var hex_address_str = this.getAttribute("data-address");
 			var address = parseInt(hex_address_str,16);
+			var bank = this.getAttribute("data-bank");
 
 			PubSub.publish("Debugger.Execution.Select", address);
 
@@ -84,10 +85,11 @@ var DebugExecutionProgram = function(emulation_core) {
 					</ul>
 				`,
 				address: address,
+				bank: bank,
 				clickHandler: function(label){
 					switch(label) {
 						case 'breakpoint':
-							PubSub.publish("Debugger.Breakpoint.Update",{address:this.popup.settings.address, settings:{x:true}});
+							PubSub.publish("Debugger.Breakpoint.Update",{address:this.popup.settings.address, settings:{x:true, bank: this.popup.settings.bank}});
 							PubSub.publish('Debugger.Refresh');
 							break;
 						case 'symbol':
@@ -195,6 +197,14 @@ var DebugExecutionProgram = function(emulation_core) {
 				current: (program_counter == address),
 				selected: (address == this.selected)
 			}
+
+			var bank = 0;
+			if( address >= 0x4000 && address < 0x8000 ) {
+				bank_rom_address = this.emulationCore.currentROMBank;
+				bank = bank_rom_address/0x4000;
+			}
+
+			this.view.op_rows[row_index]['bank'] = bank;
 
 			// Increment row address for each parameter
 			for( var p = 1; p <= parameter_total; p++ ) {

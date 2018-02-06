@@ -854,13 +854,13 @@ GameBoyCore.prototype.CompileBreakpoints = function(breakpoints) {
 	for( var i in breakpoints ) {
 		var breakpoint = breakpoints[i];
 		if( breakpoint.r ) {
-			this.debug_breakpoints.r[breakpoint.address] = 1;
+			this.debug_breakpoints.r[breakpoint.address] = {bank: breakpoint.bank};
 		}
 		if( breakpoint.w ) {
-			this.debug_breakpoints.w[breakpoint.address] = 1;
+			this.debug_breakpoints.w[breakpoint.address] = {bank: breakpoint.bank};
 		}
 		if( breakpoint.x ) {
-			this.debug_breakpoints.x[breakpoint.address] = 1;
+			this.debug_breakpoints.x[breakpoint.address] = {bank: breakpoint.bank};
 		}
 	}
 }
@@ -1735,11 +1735,13 @@ GameBoyCore.prototype.executeIteration = function () {
 		if( !this.execution_breakpoint_halt ) {
 			// Check for execution breakpoint halt
 			if( this.debug_breakpoints.x[this.programCounter] ) {
-				this.execution_breakpoint_halt = true;
-				this.iterationEndRoutine();
-				pause();
-				PubSub.publish('Debugger.JumpToCurrent');
-				return;
+				if( this.programCounter < 0x4000 || this.programCounter >= 0x8000 || this.debug_breakpoints.x[this.programCounter].bank*0x4000 == this.currentROMBank ) {
+					this.execution_breakpoint_halt = true;
+					this.iterationEndRoutine();
+					pause();
+					PubSub.publish('Debugger.JumpToCurrent');
+					return;
+				}
 			}
 			
 		} else {
