@@ -12,12 +12,20 @@ var DebugExecutionProgram = function(emulation_core) {
                 <button class='execution-play selected'>►</button>
                 <button class='execution-pause'>‖</button>
                 <button class='execution-step'>→</button>
-            </div>
+            </div>       	
             <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current, selected: row.selected }" v-bind:data-bank="row.bank" v-bind:data-address="row.address">
+                <div v-if="row.functionStart">
+            		Function() {
+            	</div>
                 <div class='execution-label'>{{row.label}}</div>
                 <div class='execution-address'>{{row.address}}</div>
                 <div class='execution-opcode'>{{row.opcode}}</div>
-                <div class='execution-instruction'>{{row.instruction}}</div>
+                <div class='execution-instruction'>
+                	{{row.instruction}}
+                </div>
+                <div v-if="row.functionEnd">
+            	} //
+            	</div>
             </div>
         </div>
 	`;
@@ -195,7 +203,7 @@ var DebugExecutionProgram = function(emulation_core) {
 				opcode: code_str,
 				instruction: instruction,
 				current: (program_counter == address),
-				selected: (address == this.selected)
+				selected: (address == this.selected),
 			}
 
 			var bank = 0;
@@ -205,6 +213,12 @@ var DebugExecutionProgram = function(emulation_core) {
 			}
 
 			this.view.op_rows[row_index]['bank'] = bank;
+
+			if( this.emulationCore.debug_trace.functions.start[address] ) {
+				this.view.op_rows[row_index]['functionStart'] = "Function()";
+			} else 	if( this.emulationCore.debug_trace.functions.end[address] ) {
+				this.view.op_rows[row_index]['functionEnd'] = "} //";
+			}
 
 			// Increment row address for each parameter
 			for( var p = 1; p <= parameter_total; p++ ) {

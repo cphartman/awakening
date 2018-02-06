@@ -10,12 +10,12 @@
 }
 
 .execution-row {
-	height: 20px;
+	min-height: 20px;
 	line-height: 20px;
 }
 
 .execution-row.selected {
-	background-color: rgba(255,0,0,.2);
+	background-color: rgba(0,0,255,.2);
 }
 
 .execution-row.current {

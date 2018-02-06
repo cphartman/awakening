@@ -37,7 +37,7 @@
 }
 
 .debug-state-window .debug-flag.on {
-	background-color: #d50000;
+	background-color: rgba(0,0,255,.1);
 	color: #FFF;
 	font-weight: bold;
 }
@@ -68,8 +68,8 @@
 }
 
 .debug-state-window .stack-row.current {
-	background-color: #F00;
-	color: #FFF;
+	background-color: rgba(0,0,255,.2);
+	color: #000;
 }
 
 .debug-state-window .stack-label {

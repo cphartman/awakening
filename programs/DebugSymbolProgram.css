@@ -22,7 +22,7 @@
 
 .selected .symbol-name:hover,
 .selected .symbol-value:hover {
-	background-color: rgba(255,0,0,.2);
+	background-color: rgba(0,0,255,.2);
 }
 
 .symbol-row {
@@ -31,7 +31,7 @@
 }
 
 .symbol-row.selected {
-	background-color: rgba(255,0,0,.2);
+	background-color: rgba(0,0,255,.2);
 }
 
 .debug-symbol-window .tooltip::after {

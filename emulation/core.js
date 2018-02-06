@@ -18,6 +18,11 @@ function GameBoyCore(canvas, ROMImage) {
 		visited: {},
 		current: [],
 		limit: 20,
+		depth_counter: 0,
+		functions: {
+			'start': {},
+			'end': {}
+		}
 	};
 
 	//Params, etc...
@@ -1688,16 +1693,24 @@ GameBoyCore.prototype.DebugTrace = function() {
 	// Check for debug tracing
 	for( var i = 0; i < MetaStackRegisteres['inc'].length; i++ ) {
 		var inc_op = MetaStackRegisteres['inc'][i];
-		if( current_op = inc_op ) {
+		var bank_low = 16384; // 0x4000
+		var bank_high = 32768; // 0x8000
+		if( current_op == inc_op ) {
 			var trace = {
 				address: address,
 				opType: 'inc',
-				mbc: this.currentROMBank
+				bank: ( address >= bank_low && address < bank_high ? this.currentROMBank/bank_low : false ),
+				depth: this.debug_trace.depth_counter
 			};
+
+			this.debug_trace.depth_counter++;
 
 			this.debug_trace.visited[address] = trace;
 
 			this.debug_trace.current.push(trace);
+
+			var jump_location = this.speculativeResults["programCounter"];
+			this.debug_trace.functions.start[jump_location] = 1;
 
 			if( this.debug_trace.current.length > this.debug_trace.limit ) {
 				this.debug_trace.current.shift();
@@ -1708,15 +1721,22 @@ GameBoyCore.prototype.DebugTrace = function() {
 	// Check for debug tracing
 	for( var i = 0; i < MetaStackRegisteres['dec'].length; i++ ) {
 		var dec_op = MetaStackRegisteres['dec'][i];
-		if( current_op = dec_op ) {
+		if( current_op == dec_op ) {
 			var trace = {
 				address: address,
-				opType: 'dec'
+				opType: 'dec',
+				bank: ( address >= bank_low && address < bank_high ? this.currentROMBank/bank_low : false ),
+				depth: this.debug_trace.depth_counter
 			};
+
+			this.debug_trace.depth_counter--;
 
 			this.debug_trace.visited[address] = trace;
 
 			this.debug_trace.current.push(trace);
+
+			var jump_location = this.speculativeResults["programCounter"];
+			this.debug_trace.functions.end[address] = 1;
 
 			if( this.debug_trace.current.length > this.debug_trace.limit ) {
 				this.debug_trace.current.shift();
