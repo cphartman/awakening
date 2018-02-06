@@ -43,6 +43,16 @@
 }
 
 
+.memory-row-header {
+	padding-left: 72px;
+}
+.memory-row-header span {
+	width: 30px;
+	text-align: center;
+	font-weight: bold;
+	display: inline-block;
+}
+
 
 .memory-label,
 .memory-values,
@@ -52,7 +62,8 @@
 
 .memory-value {
 	display: inline-block;
-	padding: 0 7px;
+	text-align: center;
+	width: 30px;
 }
 .memory-value.selected {
 	background-color: rgba(255,0,0,.2);

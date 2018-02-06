@@ -5,6 +5,7 @@ var DebugExecutionProgram = function(emulation_core) {
 	this.view = false;
 	this.scrollbar = false;
 	this.$toolbar = false;
+	this.selected = false;
 	this.template = `
 		<div class='debug-execution-window'>
             <div class='execution-toolbar'>
@@ -12,7 +13,7 @@ var DebugExecutionProgram = function(emulation_core) {
                 <button class='execution-pause'>‖</button>
                 <button class='execution-step'>→</button>
             </div>
-            <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current }">
+            <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current, selected: row.selected }" v-bind:data-address="row.address">
                 <div class='execution-label'>{{row.label}}</div>
                 <div class='execution-address'>{{row.address}}</div>
                 <div class='execution-opcode'>{{row.opcode}}</div>
@@ -48,17 +49,68 @@ var DebugExecutionProgram = function(emulation_core) {
 		this.Refresh();
 
 		this.BindEvents();
+
 	};
 
 	this.BindEvents = function() {
-		this.$play.addEventListener("click", this.domEvents['playClick'].bind(this));
+		// Event listeners
+		this.$play.addEventListener("click", this.domEvents['playClick']);
+		this.$pause.addEventListener("click", this.domEvents['pauseClick']);
+		this.$step.addEventListener("click", this.domEvents['stepClick']);	
+		$(this.$window).on("click", ".execution-row", this.domEvents['rowClick']);
 
-		this.$pause.addEventListener("click", this.domEvents['pauseClick'].bind(this));
+		$(this.window.$el).on("contextmenu", ".execution-row", this.domEvents['contextMenu']);
 
-		this.$step.addEventListener("click", this.domEvents['stepClick'].bind(this));	
+
+		// Subscriptions
+		PubSub.subscribe("Debugger.Execution.Select",function(evt,data){
+			this.selected = data;
+			this.Refresh();
+		}.bind(this));
+
 	}
 
 	this.domEvents = {
+		'contextMenu': function(event){
+			var hex_address_str = this.getAttribute("data-address");
+			var address = parseInt(hex_address_str,16);
+
+			PubSub.publish("Debugger.Execution.Select", address);
+
+			this.popup = new Popup({
+				template: `
+					<ul>
+						<li data-click='breakpoint'>Add Breakpoint</li>
+					</ul>
+				`,
+				address: address,
+				clickHandler: function(label){
+					switch(label) {
+						case 'breakpoint':
+							PubSub.publish("Debugger.Breakpoint.Update",{address:this.popup.settings.address, settings:{x:true}});
+							PubSub.publish('Debugger.Refresh');
+							break;
+						case 'symbol':
+							EmulationSymbols.Update({
+								address: this.popup.settings.address,
+								label: "Symbol",
+								type: "Execution",
+								namespace: "[New]"
+							});
+							PubSub.publish("Debugger.Refresh");
+							break;
+					}
+							
+				}.bind(this)
+			});
+
+			return false;
+		},
+		'rowClick': function() {
+			var address_hex = this.getAttribute('data-address');
+			var address = parseInt(address_hex,16);
+			PubSub.publish("Debugger.Execution.Select",address);
+		},
 		'pauseClick': function(){
 			pause();
 			PubSub.publish('Debugger.JumpToCurrent');
@@ -93,11 +145,11 @@ var DebugExecutionProgram = function(emulation_core) {
 			PubSub.publish('Debugger.JumpToCurrent');
 			
 			return;
-		},
+		}.bind(this),
 		'scroll': function(){
 			this.addressTop = this.scrollbar.Get();
 			this.Refresh();
-		}
+		}.bind(this)
 	}; 
 
 	this.JumpToCurrent = function() {
@@ -141,6 +193,7 @@ var DebugExecutionProgram = function(emulation_core) {
 				opcode: code_str,
 				instruction: instruction,
 				current: (program_counter == address),
+				selected: (address == this.selected)
 			}
 
 			// Increment row address for each parameter

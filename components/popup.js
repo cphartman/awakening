@@ -36,7 +36,7 @@ var Popup = function(settings) {
 	this.PositionToMouse = function() {
 		this.$el.style.top = Mouse.y+"px";
 		this.$el.style.left = Mouse.x+"px";
-		this.$el.style.transform = "translateY(-100%) translateX(-50%)";
+		this.$el.style.transform = "translateY(-100%) translateX(5px)";
 	}
 
 	this.PositionToTarget = function() {

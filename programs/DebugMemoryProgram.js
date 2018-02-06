@@ -10,6 +10,7 @@ var DebugMemoryProgram = function(emulation_core) {
 	this.selectedAddress = -1;
 	this.template = `
 		<div class="debug-memory-window">
+			<div class='memory-row-header'><span>00</span><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span><span>09</span><span>0A</span><span>0B</span><span>0C</span><span>0D</span><span>0E</span><span>0F</span></div>
             <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address">
             	<div class='symbol-row' v-if="row.symbols.length">
             		<span class='symbol memory-link' v-for="symbol in row.symbols" v-bind:data-address="symbol.address" v-bind:style="{left: symbol.left}">

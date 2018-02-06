@@ -59,11 +59,17 @@ var Scrollbar = function() {
 		}
 
 		this.valueTarget = Math.ceil(value);
+		if( this.valueTarget < 0 ) {
+			this.valueTarget = 0;
+		}
+		if( this.valueTarget > this.height ) {
+			this.valueTarget = this.height;
+		}
 		this.setTargetCallback();
 	}
 
 	this.setTargetCallback = function() {
-		console.log(this.valueTarget + " " + this.value );
+		console.log("Target Callback: "+this.value);
 		if( this.valueTarget != Math.floor(this.value) ) {
 			if( this.value < this.valueTarget ) {	
 				this.Set(this.value+1);

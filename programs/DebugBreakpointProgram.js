@@ -43,19 +43,38 @@ var DebugBreakpointProgram = function(emulation_core) {
 
 		PubSub.publish("Debugger.Breakpoints.Set", this.breakpoints);
 
+		$(this.$window).on("click", ".execution-remove", function(){
+			var $parent = $(this).parents(".breakpoint-row");
+			var address_hex = $parent.attr('data-address');
+			var address = parseInt(address_hex,16);
+			PubSub.publish("Debugger.Breakpoint.Remove",address);
+		});
+
 		$(this.$window).on("change",".execution-settings input",function(e){
 			var $input = $(this);
 			var $breakpoint = $input.parents(".breakpoint-row");
-			var hex_address = $breakpoint.data('address');
+			var hex_address = $breakpoint.attr('data-address');
 			var address = parseInt(hex_address,16);
 
-			var setting = $input.data('setting');
+			var setting = $input.attr('data-setting');
 			PubSub.publish("Debugger.Breakpoint.Update", {
 				address: address,
 				setting: setting,
 				value: $input.is(":checked")
 			});
 		});
+
+
+		PubSub.subscribe("Debugger.Breakpoint.Remove", function(msg,data){
+			for( var i = 0; i < this.breakpoints.length; i++) {
+				if( this.breakpoints[i].address == data ) {
+					this.breakpoints.splice(i,1);
+					break;
+				}
+			}
+			this.Refresh();
+
+		}.bind(this));
 
 		PubSub.subscribe("Debugger.Breakpoint.Update", function(msg,data){
 			var found = false;
@@ -106,6 +125,7 @@ var DebugBreakpointProgram = function(emulation_core) {
 
 var DebugBreakpoint = function(address, settings) {
 	this.address = address;
+	this.bank = false;
 
 	this.x = ( settings.x ? true : false ) ;
 	this.r = ( settings.r ? true : false ) ;

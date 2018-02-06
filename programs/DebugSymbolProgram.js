@@ -3,6 +3,7 @@ var DebugSymbolProgram = function(emulation_core) {
 	this.stackTop = 0;
 	this.emulationCore = emulation_core;
 	this.view = false;
+	this.seleced = false;
 
 	this.template = `
 		<div class='debug-symbol-window'>
@@ -11,7 +12,7 @@ var DebugSymbolProgram = function(emulation_core) {
 		    		<select class='namespace' v-model='currentNamespace' v-on:change='NamespaceChange'>
 		    			<option v-for='namespace in namespaces'>{{namespace}}</option>
 		    		</select>
-		        <div class='symbol-row' v-for="symbol in symbols" v-bind:data-address="symbol.address">
+		        <div class='symbol-row' v-for="symbol in symbols" v-bind:data-address="symbol.address" v-bind:class="symbol.selected">
 		            <div class='symbol-address memory-link'>{{symbol.address}}</div>
 		            <div class='symbol-name'>{{symbol.label}}</div>
 		            <div class='symbol-value'>{{symbol.value}}</div>
@@ -91,9 +92,8 @@ var DebugSymbolProgram = function(emulation_core) {
 		}.bind(this));
 
 		PubSub.subscribe("Debugger.Symbol.Select", function(msg,data){
-			$(this.$window).find(".selected").removeClass("selected");
-			var row = this.$window.querySelector(".symbol-row[data-address='"+data+"'");
-			row.classList.add("selected");
+			this.selected = parseInt(data,16);
+			this.Refresh();
 		}.bind(this));
 	}
 
@@ -115,7 +115,8 @@ var DebugSymbolProgram = function(emulation_core) {
 				var s = {
 					label: symbol.label,
 					address: int2hex(address,4),
-					value: int2hex(DebugReadMemory(address),2)
+					value: int2hex(DebugReadMemory(address),2),
+					selected: (address == this.selected ? "selected" : "")
 				};
 				this.view.symbols.push(s);
 			}
