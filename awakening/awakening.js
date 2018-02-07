@@ -9,17 +9,54 @@ Awakening = function(){
 	this.Init = function() {
 
 		// Load Libraries
-		FileLoader.LoadJs(["lib/jquery", "lib/mouse", "lib/pubsub", "lib/vue", "lib/gui", "lib/debugger", "lib/resampler", "lib/XAudioServer"]);
-		FileLoader.LoadCss(["lib/normalize"]);
+		FileLoader.LoadJs([
+			"lib/jquery",
+			"lib/mouse",
+			"lib/pubsub",
+			"lib/vue",
+			"lib/gui",
+			"lib/debugger",
+			"lib/resampler",
+			"lib/XAudioServer"
+		]);
+		FileLoader.LoadCss([
+			"lib/normalize"
+		]);
 
 		// Load components
-		FileLoader.Load(["components/window","components/scrollbar","components/popup","components/tooltip"]);
+		FileLoader.Load([
+			"components/window",
+			"components/scrollbar",
+			"components/popup",
+			"components/tooltip"
+		]);
 		
 		// Load Window Programs
-		FileLoader.Load(["programs/DebugLCDProgram","programs/DebugMemoryProgram","programs/DebugStateProgram","programs/DebugExecutionProgram","programs/DebugBreakpointProgram","programs/DebugSymbolProgram","programs/DebugTraceProgram"]);
+		FileLoader.Load([
+			"programs/DebugLCDProgram",
+			"programs/DebugMemoryProgram",
+			"programs/DebugStateProgram",
+			"programs/DebugExecutionProgram",
+			"programs/DebugBreakpointProgram",
+			"programs/DebugSymbolProgram",
+			"programs/DebugTraceProgram"
+		]);
 
 		// Load emulation core
-		FileLoader.LoadJs(["emulation/CoreOpCodes","emulation/CoreOpCodesCB","emulation/MetaData","emulation/core", "emulation/coreAudio"]);
+		FileLoader.LoadJs([
+			"emulation/CoreOpCodes",
+			"emulation/CoreOpCodesCB",
+			"emulation/core",
+			"emulation/coreInitialize",
+			"emulation/coreAudio",
+			"emulation/coreGraphics",
+			"emulation/coreGraphics",
+			"emulation/coreMemory",
+			"emulation/coreSaveState",
+			"emulation/coreDebugger",
+			"emulation/MetaData",
+			
+		]);
 		FileLoader.LoadJs(["emulation/EmulationSymbols"]);
 
 		// Load awakening project files
