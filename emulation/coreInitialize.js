@@ -7,7 +7,7 @@ GameBoyCore.prototype.Init = function(canvas, ROMImage) {
 	this.debug_trace = {
 		visited: {},
 		current: [],
-		limit: 20,
+		limit: 10,
 		depth_counter: 0,
 		functions: {
 			'start': {},

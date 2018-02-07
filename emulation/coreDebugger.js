@@ -128,15 +128,24 @@ GameBoyCore.prototype.DebugTrace = function() {
 	var address = this.programCounter;
 	var current_op = this.memoryReader[address](this, address);
 
+	var bank_low = 16384; // 0x4000
+	var bank_high = 32768; // 0x8000
+
 	// Check for debug tracing
 	for( var i = 0; i < MetaStackRegisteres['inc'].length; i++ ) {
 		var inc_op = MetaStackRegisteres['inc'][i];
-		var bank_low = 16384; // 0x4000
-		var bank_high = 32768; // 0x8000
 		if( current_op == inc_op ) {
+			
+			var jump_location = this.speculativeResults["programCounter"];
+			
+			if( Math.abs(jump_location-address) < 4 ) {
+				break;
+			}
+
 			var trace = {
-				address: address,
-				opType: 'inc',
+				addressFrom: address,
+				addressTo: jump_location,
+				type: 'inc',
 				bank: ( address >= bank_low && address < bank_high ? this.currentROMBank/bank_low : false ),
 				depth: this.debug_trace.depth_counter
 			};
@@ -147,7 +156,6 @@ GameBoyCore.prototype.DebugTrace = function() {
 
 			this.debug_trace.current.push(trace);
 
-			var jump_location = this.speculativeResults["programCounter"];
 			this.debug_trace.functions.start[jump_location] = 1;
 
 			if( this.debug_trace.current.length > this.debug_trace.limit ) {
@@ -160,26 +168,37 @@ GameBoyCore.prototype.DebugTrace = function() {
 	for( var i = 0; i < MetaStackRegisteres['dec'].length; i++ ) {
 		var dec_op = MetaStackRegisteres['dec'][i];
 		if( current_op == dec_op ) {
+			
+			var jump_location = this.speculativeResults["programCounter"];
+			
+			if( Math.abs(jump_location-address) < 4 ) {
+				break;
+			}
+
 			var trace = {
-				address: address,
-				opType: 'dec',
+				addressFrom: address,
+				addressTo: jump_location,
+				type: 'dec',
 				bank: ( address >= bank_low && address < bank_high ? this.currentROMBank/bank_low : false ),
 				depth: this.debug_trace.depth_counter
 			};
 
-			this.debug_trace.depth_counter--;
+			this.debug_trace.depth_counter++;
 
 			this.debug_trace.visited[address] = trace;
 
 			this.debug_trace.current.push(trace);
 
-			var jump_location = this.speculativeResults["programCounter"];
-			this.debug_trace.functions.end[address] = 1;
+			this.debug_trace.functions.end[jump_location] = 1;
 
 			if( this.debug_trace.current.length > this.debug_trace.limit ) {
 				this.debug_trace.current.shift();
 			}
 		}
+	}
+
+	if( this.debug_trace.current.length > this.debug_trace.limit ) {
+		this.debug_trace.current = this.debug_trace.current.slice(this.debug_trace.limit*-1);
 	}
 
 }

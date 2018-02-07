@@ -1,8 +1,6 @@
 
-.symbol-group,
-.symbol-name,
-.symbol-address,
-.symbol-value {
+.trace-address,
+.trace-type {
 	display: inline-block;
 }
 

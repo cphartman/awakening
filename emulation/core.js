@@ -157,6 +157,9 @@ GameBoyCore.prototype.executeIteration = function () {
 		this.CPUTicks = this.TICKTable[opcodeToExecute];
 		//Execute the current instruction:
 		this.OPCODE[opcodeToExecute](this);
+
+
+
 		//Update the state (Inlined updateCoreFull manually here):
 		//Update the clocking for the LCD emulation:
 		this.LCDTicks += this.CPUTicks >> this.doubleSpeedShifter;	//LCD Timing
@@ -319,7 +322,22 @@ GameBoyCore.prototype.launchIRQ = function () {
 			this.stackPointer = (this.stackPointer - 1) & 0xFFFF;
 			this.memoryWriter[this.stackPointer](this, this.stackPointer, this.programCounter & 0xFF);
 			//Set the program counter to the interrupt's address:
+			this.programCounterOld = this.programCounter;
 			this.programCounter = 0x40 | (bitShift << 3);
+
+			if( !this.debug_trace.enabled ) {
+				var bank_low = 16384; // 0x4000
+				var bank_high = 32768; // 0x8000
+				var address = this.programCounter;
+				this.debug_trace.current.push({
+					interrupt: (bitShift << 3),
+					addressTo: address,
+					addressFrom: this.programCounterOld,
+					type: "IRQ",
+					bank: ( address >= bank_low && address < bank_high ? this.currentROMBank/bank_low : false ),
+				});
+			}
+
 			//Clock the core for mid-instruction updates:
 			this.updateCore();
 			return;									//We only want the highest priority interrupt.

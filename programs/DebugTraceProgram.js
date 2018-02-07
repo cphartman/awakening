@@ -11,8 +11,8 @@ var DebugTraceProgram = function(emulation_core) {
             </div>
 		    <div class='trace-list'>
 		        <div class='trace-row' v-for="trace in traces" v-bind:data-address="trace.address">
-		            <div class='trace-opType'>{{trace.opType}}</div>
-		            <div class='trace-address memory-link'>{{trace.address}}</div>
+		            <div class='trace-type'>{{trace.type}}</div>
+		            <div class='trace-address memory-link'>{{trace.addressFrom}}=>{{trace.addressTo}}</div>
 		     	</div>
 		    </div>
 		</div>
@@ -58,11 +58,13 @@ var DebugTraceProgram = function(emulation_core) {
 
 	this.Refresh = function() {
 		this.view.traces = [];
+		
 		for( var i = 0; i < this.emulationCore.debug_trace.current.length; i++ ) {
 			var trace = this.emulationCore.debug_trace.current[i]; 
 			var t = {
-				address: int2hex(trace.address,4),
-				opType: trace.opType
+				addressFrom: int2hex(trace.addressFrom,4),
+				addressTo: int2hex(trace.addressTo,4),
+				type: trace.type,
 			};
 			this.view.traces.push(t);
 		}
