@@ -44,8 +44,8 @@ Awakening = function(){
 
 		// Load emulation core
 		FileLoader.LoadJs([
-			"emulation/CoreOpCodes",
-			"emulation/CoreOpCodesCB",
+			"emulation/coreOpCodes",
+			"emulation/coreOpCodesCB",
 			"emulation/core",
 			"emulation/coreInitialize",
 			"emulation/coreAudio",
@@ -54,7 +54,7 @@ Awakening = function(){
 			"emulation/coreMemory",
 			"emulation/coreSaveState",
 			"emulation/coreDebugger",
-			"emulation/MetaData",
+			"emulation/coreMetaData",
 			
 		]);
 		FileLoader.LoadJs(["emulation/EmulationSymbols"]);
