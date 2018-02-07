@@ -12,7 +12,7 @@ var DebugTraceProgram = function(emulation_core) {
 		    <div class='trace-list'>
 		        <div class='trace-row' v-for="trace in traces" v-bind:data-address="trace.address">
 		            <div class='trace-type'>{{trace.type}}</div>
-		            <div class='trace-address memory-link'>{{trace.addressFrom}}=>{{trace.addressTo}}</div>
+		            <div class='trace-address'><div class='trace-from execution-link'>{{trace.addressFrom}}</div> => <div class='trace-to execution-link'>{{trace.addressTo}}</div></div>
 		     	</div>
 		    </div>
 		</div>

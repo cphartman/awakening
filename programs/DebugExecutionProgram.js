@@ -58,6 +58,7 @@ var DebugExecutionProgram = function(emulation_core) {
 
 		this.BindEvents();
 
+		this.SetupExecutionLinkEvent();
 	};
 
 	this.BindEvents = function() {
@@ -73,6 +74,11 @@ var DebugExecutionProgram = function(emulation_core) {
 		// Subscriptions
 		PubSub.subscribe("Debugger.Execution.Select",function(evt,data){
 			this.selected = data;
+			this.Refresh();
+		}.bind(this));
+
+		PubSub.subscribe("Debugger.Execution.JumpTo",function (msg, data) {
+			this.JumpTo(data);
 			this.Refresh();
 		}.bind(this));
 
@@ -161,6 +167,26 @@ var DebugExecutionProgram = function(emulation_core) {
 			this.Refresh();
 		}.bind(this)
 	}; 
+
+	this.SetupExecutionLinkEvent = function() {
+		$("body").on("click", ".execution-link", function(e){
+			
+			var string = this.innerText.toLowerCase().replace(/[^0-9a-f]/i,"");
+			var address = parseInt(string,16);
+			PubSub.publish("Debugger.Execution.JumpTo", address);
+			PubSub.publish("Debugger.Execution.Select",address);
+
+		});
+	}
+
+	this.JumpTo = function(address) {
+		var window_height = this.$window.offsetHeight;
+		row_count = Math.floor(window_height / 20);
+
+		this.addressTop = address - Math.floor(row_count*.75);
+		this.scrollbar.Set(this.addressTop);
+		this.Refresh();
+	}
 
 	this.JumpToCurrent = function() {
 		var window_height = this.$window.offsetHeight;

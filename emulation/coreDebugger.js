@@ -1,3 +1,20 @@
+GameBoyCore.prototype.DebugInit = function() {
+	this.debug_step = 0;
+	this.debug_breakpoints = {r:[],w:[],x:[]};
+	this.debug_enable_input = true;
+	this.memory_breakpoint_halt = false;
+	this.debug_trace = {
+		enabled: false,
+		visited: {},
+		current: [],
+		limit: 10,
+		depth_counter: 0,
+		functions: {
+			'start': {},
+			'end': {}
+		}
+	};
+};
 
 GameBoyCore.prototype.CompileBreakpoints = function(breakpoints) {
 	this.debug_breakpoints = {
@@ -157,10 +174,6 @@ GameBoyCore.prototype.DebugTrace = function() {
 			this.debug_trace.current.push(trace);
 
 			this.debug_trace.functions.start[jump_location] = 1;
-
-			if( this.debug_trace.current.length > this.debug_trace.limit ) {
-				this.debug_trace.current.shift();
-			}
 		}
 	}
 
@@ -190,15 +203,9 @@ GameBoyCore.prototype.DebugTrace = function() {
 			this.debug_trace.current.push(trace);
 
 			this.debug_trace.functions.end[jump_location] = 1;
-
-			if( this.debug_trace.current.length > this.debug_trace.limit ) {
-				this.debug_trace.current.shift();
-			}
 		}
 	}
 
-	if( this.debug_trace.current.length > this.debug_trace.limit ) {
-		this.debug_trace.current = this.debug_trace.current.slice(this.debug_trace.limit*-1);
-	}
+	this.debug_trace.current = this.debug_trace.current.slice(this.debug_trace.limit*-1);
 
 }

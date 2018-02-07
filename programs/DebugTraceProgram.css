@@ -6,6 +6,7 @@
 
 .trace-row {
 	line-height: 20px;
+	font-family: 'Roboto Mono';
 }
 
 .trace-stop:hover,
@@ -15,4 +16,9 @@
 
 .trace-start.selected {
 	background-color: rgba(0,255,0,.4);
+}
+
+.trace-from,
+.trace-to {
+	display: inline-block;
 }

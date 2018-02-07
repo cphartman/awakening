@@ -1,19 +1,6 @@
 
 GameBoyCore.prototype.Init = function(canvas, ROMImage) {
-	this.debug_step = 0;
-	this.debug_breakpoints = {r:[],w:[],x:[]};
-	this.debug_enable_input = true;
-	this.memory_breakpoint_halt = false;
-	this.debug_trace = {
-		visited: {},
-		current: [],
-		limit: 10,
-		depth_counter: 0,
-		functions: {
-			'start': {},
-			'end': {}
-		}
-	};
+	this.DebugInit();
 
 	//Params, etc...
 	this.canvas = canvas;						//Canvas DOM object for drawing out the graphics to.

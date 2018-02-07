@@ -37,12 +37,14 @@ body {
 	height: 144px;
 }
 
-
+.execution-link,
 .memory-link {
 	cursor: pointer;
   font-family: 'Roboto Mono';
 }
 
+.execution-link:hover,
+.execution-link:hover *,
 .memory-link:hover,
 .memory-link:hover * {
 	text-decoration: underline !important;

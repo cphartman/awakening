@@ -325,7 +325,7 @@ GameBoyCore.prototype.launchIRQ = function () {
 			this.programCounterOld = this.programCounter;
 			this.programCounter = 0x40 | (bitShift << 3);
 
-			if( !this.debug_trace.enabled ) {
+			if( this.debug_trace.enabled ) {
 				var bank_low = 16384; // 0x4000
 				var bank_high = 32768; // 0x8000
 				var address = this.programCounter;
@@ -336,6 +336,7 @@ GameBoyCore.prototype.launchIRQ = function () {
 					type: "IRQ",
 					bank: ( address >= bank_low && address < bank_high ? this.currentROMBank/bank_low : false ),
 				});
+				this.debug_trace.current = this.debug_trace.current.slice(this.debug_trace.limit*-1);
 			}
 
 			//Clock the core for mid-instruction updates:
