@@ -5,7 +5,7 @@ Awakening = function(){
 	this.debugger = false;
 	this.programs = {};
 	this.$canvas = document.createElement("canvas");
-	this.config = false;
+	this.config = {};
 
 	this.Init = function() {
 		this.$body = document.querySelector("body");
@@ -111,16 +111,20 @@ delete me
 					// Check for a save state in the config
 					if( this.config.state ) {
 						FileLoader.LoadJs([this.config.state], {
-							success: this.LoadSaveState.bind(this),
-							error: this.HideLoading.bind(this)
+							success: this.LoadSaveState.bind(this)
 						},);
 					} else {
 						this.HideLoading();
-					}
-				}.bind(this),
 
-				error: function() {
-				}
+						if( this.config.start_paused ){
+							window.setTimeout(function(){
+								pause();
+								PubSub.publish('Debugger.Execution.Pause');
+								PubSub.publish('Debugger.JumpToCurrent');
+							},2000);
+						}
+					}
+				}.bind(this)
 			});
 		}
 	}
@@ -245,6 +249,14 @@ delete me
 		var state = state_base64;
 		this.emulator.returnFromState(state);
 		this.HideLoading();
+
+		if( this.config.start_paused ){
+			window.setTimeout(function(){
+				pause();
+				PubSub.publish('Debugger.Execution.Pause');
+				PubSub.publish('Debugger.JumpToCurrent');
+			},50);
+		}
 	}
 }
 

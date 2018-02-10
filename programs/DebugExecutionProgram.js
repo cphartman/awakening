@@ -81,7 +81,10 @@ var DebugExecutionProgram = function(emulation_core) {
 			this.JumpTo(data);
 			this.Refresh();
 		}.bind(this));
-
+		PubSub.subscribe("Debugger.Execution.Pause", function(){
+			this.$play.classList.remove("selected");
+			this.$pause.classList.add("selected");
+		}.bind(this));
 	}
 
 	this.domEvents = {
@@ -128,10 +131,6 @@ var DebugExecutionProgram = function(emulation_core) {
 			PubSub.publish("Debugger.Execution.Select",address);
 		},
 		'pauseClick': function(){
-			
-			this.$play.classList.remove("selected");
-			this.$pause.classList.add("selected");
-
 			pause();
 			PubSub.publish('Debugger.Execution.Pause');
 			PubSub.publish('Debugger.JumpToCurrent');

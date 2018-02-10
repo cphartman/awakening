@@ -48,6 +48,7 @@ GameBoyCore.prototype.initMemoryProxy = function() {
 					if( this.debug_breakpoints.r[address] ) {
 						// Fire halt memory read interrupt
 						this.memory_breakpoint_halt = true;
+						PubSub.publish("Debugger.Execution.Pause");
 						PubSub.publish('Debugger.JumpToCurrent');
 						PubSub.publish('Debugger.Memory.JumpTo', address);
 					}
@@ -59,6 +60,7 @@ GameBoyCore.prototype.initMemoryProxy = function() {
 		set: function(target, address, value, receiver) {
 			if( this.debug_breakpoints.w[address] ) {
 				this.memory_breakpoint_halt = true;
+				PubSub.publish("Debugger.Execution.Pause");
 				PubSub.publish('Debugger.JumpToCurrent');
 				PubSub.publish('Debugger.Memory.JumpTo', address);
 			}
