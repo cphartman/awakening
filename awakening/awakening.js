@@ -10,8 +10,6 @@ Awakening = function(){
 	this.Init = function() {
 		this.$body = document.querySelector("body");
 
-		this.ShowLoading();
-
 		// Load Libraries
 		FileLoader.LoadJs([
 			"lib/jquery",
@@ -96,11 +94,15 @@ delete me
 	
 	this.HideLoading = function() {
 		this.$body.classList.remove('state-loading');
+		this.$body.classList.add('state-ready');
 	};
 
 	this.LoadConfig = function() {
 
 		if( this.config.rom ){
+
+			this.ShowLoading();
+
 			FileLoader.LoadJs([this.config.rom], {
 				success: function() {
 

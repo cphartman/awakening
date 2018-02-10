@@ -71,6 +71,7 @@ button:hover {
   background-color: #66ffa6;
 }
 
+body,
 body.state-loading::after {
   content: '';
   position: fixed;
@@ -96,4 +97,8 @@ body.state-loading::before {
   color: #FFF;
   padding: 3vw;
   background-color: #000;
+}
+
+body.state-ready {
+  background-image: none;
 }
