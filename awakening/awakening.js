@@ -5,8 +5,12 @@ Awakening = function(){
 	this.debugger = false;
 	this.programs = {};
 	this.$canvas = document.createElement("canvas");
+	this.config = false;
 
 	this.Init = function() {
+		this.$body = document.querySelector("body");
+
+		this.ShowLoading();
 
 		// Load Libraries
 		FileLoader.LoadJs([
@@ -62,6 +66,18 @@ Awakening = function(){
 		// Load awakening project files
 		FileLoader.LoadCss(["awakening/awakening"]);
 		FileLoader.LoadJs(["awakening/GameBoyIO"]);
+
+		// Capture window resize events to notify all windows
+		// Todo: move to window component
+		window.addEventListener("resize", this.PositionDebugWindows.bind(this));
+		
+		// Check for autoload config
+		FileLoader.LoadJs(["config"],{
+			success: this.LoadConfig.bind(this)
+		});
+
+/*
+delete me
 		FileLoader.LoadJs(["assets/rom/la_rom"]);
 		FileLoader.LoadJs(["assets/rom/la_savestate"], function(){
 			PubSub.immediateExceptions = true;
@@ -71,12 +87,51 @@ Awakening = function(){
 			this.InitInput();
 			this.InitDebugger();
 		}.bind(this));
-
-		window.addEventListener("resize", this.PositionDebugWindows.bind(this));
+*/
 	},
 
+	this.ShowLoading = function() {
+		this.$body.classList.add('state-loading');
+	};
+	
+	this.HideLoading = function() {
+		this.$body.classList.remove('state-loading');
+	};
+
+	this.LoadConfig = function() {
+
+		if( this.config.rom ){
+			FileLoader.LoadJs([this.config.rom], {
+				success: function() {
+
+					this.Launch();
+
+					// Check for a save state in the config
+					if( this.config.state ) {
+						FileLoader.LoadJs([this.config.state], {
+							success: this.LoadSaveState.bind(this),
+							error: this.HideLoading.bind(this)
+						},);
+					} else {
+						this.HideLoading();
+					}
+				}.bind(this),
+
+				error: function() {
+				}
+			});
+		}
+	}
+
+	this.Launch = function() {
+		// Everything should be setup in the config and ready to go
+		this.InitEmulator();
+		this.InitInput();
+		this.InitDebugger();
+	}
+
 	this.InitEmulator = function() {
-		var rom = atob(la_rom);
+		var rom = atob(rom_base64);
 		this.emulator = new GameBoyCore(this.$canvas, rom);
 		
 		// Global reference that should be removed
@@ -112,6 +167,11 @@ Awakening = function(){
 	}
 
 	this.PositionDebugWindows = function() {
+
+		// Todo: Fix tracking or update
+		if( !this.programs['lcd'] ) {
+			return;
+		}
 
 		// I have no idea why this is not correct for my monitor
 		// var screen_height = window.innerHeight;
@@ -180,7 +240,9 @@ Awakening = function(){
 	}
 
 	this.LoadSaveState = function() {
-		this.emulator.returnFromState(la_savestate);
+		var state = state_base64;
+		this.emulator.returnFromState(state);
+		this.HideLoading();
 	}
 }
 

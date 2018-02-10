@@ -7,10 +7,11 @@ var EmulationSymbols = (function(){
 	}
 
 	this.Init = function() {
-		FileLoader.LoadJs(["emulation/symbols/ExportedSymbols"], function(){
-			this.symbolList = ExportedSymbols;
-
-		}.bind(this));
+		FileLoader.LoadJs(["emulation/symbols/ExportedSymbols"], {
+			success: function() {
+				this.symbolList = ExportedSymbols;
+			}.bind(this)
+		});
 	};
 
 	this.Lookup = function(address) {
