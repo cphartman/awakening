@@ -38,5 +38,17 @@
 
 
 .execution-play.selected {
-	background-color: rgba(0,255,0, .2);
+	background-color: rgba(0,255,0,.4);
+}
+
+.execution-pause:hover {
+	background-color: rgba(0,0,255,.4);
+}
+
+.execution-pause.selected {
+	background-color: rgba(0,0,255,.2);
+}
+
+.execution-step:hover {
+	background-color: rgba(255,255,0,.4);
 }

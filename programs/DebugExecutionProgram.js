@@ -9,7 +9,7 @@ var DebugExecutionProgram = function(emulation_core) {
 	this.template = `
 		<div class='debug-execution-window'>
             <div class='execution-toolbar'>
-                <button class='execution-play selected'>►</button>
+                <button class='execution-play'>►</button>
                 <button class='execution-pause'>‖</button>
                 <button class='execution-step'>→</button>
             </div>       	
@@ -63,8 +63,8 @@ var DebugExecutionProgram = function(emulation_core) {
 
 	this.BindEvents = function() {
 		// Event listeners
-		this.$play.addEventListener("click", this.domEvents['playClick']);
-		this.$pause.addEventListener("click", this.domEvents['pauseClick']);
+		this.$play.addEventListener("click", this.domEvents['playClick'].bind(this));
+		this.$pause.addEventListener("click", this.domEvents['pauseClick'].bind(this));
 		this.$step.addEventListener("click", this.domEvents['stepClick']);	
 		$(this.$window).on("click", ".execution-row", this.domEvents['rowClick']);
 
@@ -128,13 +128,23 @@ var DebugExecutionProgram = function(emulation_core) {
 			PubSub.publish("Debugger.Execution.Select",address);
 		},
 		'pauseClick': function(){
+			
+			this.$play.classList.remove("selected");
+			this.$pause.classList.add("selected");
+
 			pause();
+			PubSub.publish('Debugger.Execution.Pause');
 			PubSub.publish('Debugger.JumpToCurrent');
 			return false;
 		},
 		'playClick': function(){
+
+			this.$play.classList.add("selected");
+			this.$pause.classList.remove("selected");
+
 			clearLastEmulation();
 			run();
+			PubSub.publish('Debugger.Execution.Play');
 			return false;
 		},
 		'stepClick': function(){
