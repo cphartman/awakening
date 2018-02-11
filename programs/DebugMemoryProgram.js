@@ -6,80 +6,104 @@ var DebugMemoryProgram = function(emulation_core) {
 	this.view = false;
 	this.addressTop = 0;
 	this.breakpoints = [];
+	this.selectedMemBank = "ROM0";
+	this.selectedRomBank = 1;
 
 	this.selectedAddress = -1;
 	this.template = `
 		<div class="debug-memory-window">
-			<div class='memory-row-header'><span>00</span><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span><span>09</span><span>0A</span><span>0B</span><span>0C</span><span>0D</span><span>0E</span><span>0F</span></div>
-            <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address">
-            	<div class='symbol-row' v-if="row.symbols.length">
-            		<span class='symbol memory-link' v-for="symbol in row.symbols" v-bind:data-address="symbol.address" v-bind:style="{left: symbol.left}">
-						{{symbol.hex}}	
-            		</span>
-				</div>
-                <div class='memory-label'>{{row.label}}</div>
-                <div class='memory-address'>{{row.address}}</div>
-                <div class='memory-values'>
-                    <div class='memory-value' v-for="col in row.columns" v-bind:data-address="col.address" v-bind:class="{ selected: col.selected, breakpoint: col.breakpoint }">{{col.value}}</div>
-                </div>
-            </div>
+			<div class='memory-row-toolbar'>
+				<label>Region:</label>
+				<button class='memory-region selected' data-region='ROM0'>ROM [00]</button>
+				<button class='memory-region' data-region='VRAM'>VRAM</button>
+				<button class='memory-region' data-region='SRAM'>SRAM</button>
+				<button class='memory-region' data-region='WRAM'>WRAM</button>
+				<button class='memory-region' data-region='OAM'>OAM</button>
+				<button class='memory-region' data-region='I/O'>I/O</button>
+				<button class='memory-region' data-region='HRAM'>HRAM</button>
+			</div>
+			<div class='memory-row-header'>
+				<span>00</span><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span>
+				<span>08</span><span>09</span><span>0A</span><span>0B</span><span>0C</span><span>0D</span><span>0E</span><span>0F</span>
+			</div>
+
+			<div class='memory-rows'>
+	            <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address">
+	            	<div class='symbol-row' v-if="row.symbols.length">
+	            		<span class='symbol memory-link' v-for="symbol in row.symbols" v-bind:data-address="symbol.address" v-bind:style="{left: symbol.left}">
+							{{symbol.hex}}	
+	            		</span>
+					</div>
+	                <div class='memory-address'>{{row.address_hex}}</div>
+	                <div class='memory-values'>
+	                    <div class='memory-value' v-for="col in row.values" v-bind:data-address="col.address" foo-class="{ selected: col.selected, breakpoint: col.breakpoint }">{{col.value_hex}}</div>
+	                </div>
+	            </div>
+	        </div>
         </div>
 	`;
 
 	this.Refresh = function() {
-		var row_height = 20;
+		this.CompileRows();
+	}
+
+	this.CompileRows = function() {
+
+		var rows = [];
 		
-		var window_height = this.$window.offsetHeight;
-		row_count = Math.floor(window_height / row_height);
-		
-		var breakpoint_map = {};
-		for( i = 0; i < this.breakpoints.length; i++ ) {
-			var breakpoint = this.breakpoints[i];
-			if( breakpoint.r || breakpoint.w ) {
-				breakpoint_map[breakpoint.address] = true;
-			}
-		}
+		if( this.selectedMemBank != "ROM1" ) {
 
-		this.view.memory_rows = [];
-		for( var i = 0; i < row_count; i++ ) {
-
-			var address = this.addressTop + i*16;
-
-			this.view.memory_rows[i] = {
-				label: GameBoyCore.GetMemoryRegion(address),
-				address: int2hex(address,4),
-				columns: [],
-				symbols: [],
-			}
-
-			for( var m = 0; m < 16; m++ ) {
-				var column_address = address+m;
-
-				var value = DebugReadMemory(column_address);
-				this.view.memory_rows[i].columns[m] = {
-					address: int2hex(column_address,4),
-					value: int2hex(value,2),
-					selected: ( this.selectedAddress == column_address),
-					breakpoint: ( breakpoint_map[column_address] ? true : false ),
-
-				};
-
-				var symbol = EmulationSymbols.Lookup(column_address);
-				if( symbol ) {
-					var left = (column_address % 16) * 28.5 + 85;
-					this.view.memory_rows[i].symbols.push({
-						address:column_address,
-						label:symbol,
-						hex: int2hex(column_address,4),
-						left: left+"px"
-					});
+			// Get values
+			var mem_values = [];
+			var bank_start = 0;
+			var bank_end = 0;;
+			
+			for( var i = 0; i < GameBoyCore.MemoryRegions.length; i++ ) {
+				if( GameBoyCore.MemoryRegions[i].label == this.selectedMemBank ) {
+					bank_start = GameBoyCore.MemoryRegions[i].start;
+					bank_end = GameBoyCore.MemoryRegions[i].end;					
 				}
 			}
-		}
 
-		Vue.nextTick(function(){
-			DebugProgramFactory.SetupSymbols(this);
-		}.bind(this));
+			for( var index = 0; index < bank_end-bank_start; index++) {
+
+				col = index % 16;
+				row = Math.floor(index/16);
+
+				if( col == 0 ) {
+					var row_address = bank_start+(row*16);
+					rows[row] = {
+						symbols: [],
+						values: [],
+						address: row_address,
+						address_hex: int2hex(row_address,4)
+					};
+				}
+
+				var address = bank_start + index;
+				var value = DebugReadMemory(address); 
+				var symbol = EmulationSymbols.Lookup(address);
+				if( symbol ) {
+					var s = {
+						label: symbol.label,
+						address: address,
+						left: (col*10)+"px",
+						hex: int2hex(address,4)
+					}
+
+					rows[row].symbols.push(s);
+				}
+				rows[row].values[col] = {
+					value: value,
+					value_hex: int2hex(value,2),
+					address: address,
+					selected: false,
+					breakpoint: false
+				}
+			}
+
+			this.view.memory_rows = rows;
+		}
 	}
 
 	this.Init = function() {
@@ -98,9 +122,9 @@ var DebugMemoryProgram = function(emulation_core) {
 		this.$window = this.view.$el.querySelector('.debug-memory-window');
 
 		var row_count = this.emulationCore.memory.length / 16;
-		this.scrollbar = new Scrollbar();
-		this.scrollbar.Init(this.$window, row_count);
-		this.scrollbar.callback = this.domEvents['scroll'].bind(this);
+		//this.scrollbar = new Scrollbar();
+		//this.scrollbar.Init(this.$window, row_count);
+		//this.scrollbar.callback = this.domEvents['scroll'].bind(this);
 
 		this.Refresh();
 
@@ -121,6 +145,15 @@ var DebugMemoryProgram = function(emulation_core) {
 		}.bind(this));
 
 		this.SetupMemoryLinkEvent();
+
+		$(this.window.$el).on("click", ".memory-region", function(event){
+			this.window.$el.querySelector(".memory-region.selected").classList.remove("selected");
+			event.target.classList.add("selected");
+
+			var dataRegion = event.target.getAttribute("data-region");
+			this.selectedMemBank = dataRegion;
+			this.Refresh();
+		}.bind(this));
 
 		$(this.window.$el).on("click", ".memory-value", function(event){
 			
@@ -206,7 +239,7 @@ var DebugMemoryProgram = function(emulation_core) {
 		}
 
 		this.selectedAddress = address;
-		this.scrollbar.Set(this.addressTop/16);
+		//this.scrollbar.Set(this.addressTop/16);
 		this.Refresh();
 			
 	}
@@ -233,8 +266,8 @@ var DebugMemoryProgram = function(emulation_core) {
 
 	this.domEvents = {
 		'scroll': function() {
-			this.addressTop = this.scrollbar.Get() * 16;
-			this.Refresh();
+			//this.addressTop = this.scrollbar.Get() * 16;
+			// this.Refresh();
 		}
 	}
 

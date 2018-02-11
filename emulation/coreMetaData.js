@@ -119,33 +119,43 @@ GameBoyCore.GetMemoryRegion = function(address) {
 }
 
 GameBoyCore.MemoryRegions = [{
+		start: 0x000,
 		end: 0x4000,
 		label: "ROM0"
 	},{
+		start: 0x4000,
 		end: 0x8000,
 		label: "ROM1"
 	},{
+		start: 0x8000,
 		end: 0xA000,
 		label: "VRAM"
 	},{
+		start: 0xA000,
 		end: 0xC000,
 		label: "SRAM"
 	},{
+		start: 0xC000,
 		end: 0xE000,
 		label: "WRAM"
 	},{
+		start: 0xE000,
 		end: 0xFE00,
 		label: "ECHO"
 	},{
+		start: 0xFE00,
 		end: 0xFEA0,
-		label: " OAM"
+		label: "OAM"
 	},{
+		start: 0xFEA0,
 		end: 0xFF00,
 		label: "----"
 	},{
+		start: 0xFF00,
 		end: 0xFF80,
-		label: " I/O"
+		label: "I/O"
 	},{
+		start: 0xFF80,
 		end: 0xFFFF,
 		label: "HRAM"
 }];

@@ -5,7 +5,6 @@
 	height: 100%;
 	width: 100%;
 	overflow: hidden;
-	padding-left: 5px;
 	font-family: 'Roboto Mono';
 }
 
@@ -71,4 +70,10 @@
 }
 .memory-value.breakpoint {
 	border: 1px solid #F00;
+}
+
+.memory-rows {
+	height: calc( 100% - 51px );
+	overflow-y: scroll;
+	padding-left: 5px;
 }
