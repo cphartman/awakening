@@ -14,7 +14,7 @@ var DebugMemoryProgram = function(emulation_core) {
 		<div class="debug-memory-window">
 			<div class='memory-row-toolbar'>
 				<label>Region:</label>
-				<button class='memory-region selected' data-region='ROM0'>ROM [00]</button>
+				<button class='memory-region selected' data-region='ROM0'>ROM 00</button>
 				<button class='memory-region' data-region='VRAM'>VRAM</button>
 				<button class='memory-region' data-region='SRAM'>SRAM</button>
 				<button class='memory-region' data-region='WRAM'>WRAM</button>
@@ -31,12 +31,12 @@ var DebugMemoryProgram = function(emulation_core) {
 	            <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address">
 	            	<div class='symbol-row' v-if="row.symbols.length">
 	            		<span class='symbol memory-link' v-for="symbol in row.symbols" v-bind:data-address="symbol.address" v-bind:style="{left: symbol.left}">
-							{{symbol.hex}}	
+							{{symbol.label}}	
 	            		</span>
 					</div>
 	                <div class='memory-address'>{{row.address_hex}}</div>
 	                <div class='memory-values'>
-	                    <div class='memory-value' v-for="col in row.values" v-bind:data-address="col.address" foo-class="{ selected: col.selected, breakpoint: col.breakpoint }">{{col.value_hex}}</div>
+	                    <div class='memory-byte' v-for="col in row.values" v-bind:data-address="col.address" v-bind:class="{ selected: col.selected, breakpoint: col.breakpoint }">{{col.value_hex}}</div>
 	                </div>
 	            </div>
 	        </div>
@@ -87,7 +87,7 @@ var DebugMemoryProgram = function(emulation_core) {
 					var s = {
 						label: symbol.label,
 						address: address,
-						left: (col*10)+"px",
+						left: (52+col*40)+"px",
 						hex: int2hex(address,4)
 					}
 
@@ -97,7 +97,7 @@ var DebugMemoryProgram = function(emulation_core) {
 					value: value,
 					value_hex: int2hex(value,2),
 					address: address,
-					selected: false,
+					selected: (address == this.selectedAddress),
 					breakpoint: false
 				}
 			}
@@ -155,7 +155,7 @@ var DebugMemoryProgram = function(emulation_core) {
 			this.Refresh();
 		}.bind(this));
 
-		$(this.window.$el).on("click", ".memory-value", function(event){
+		$(this.window.$el).on("click", ".memory-byte", function(event){
 			
 			var selected = $(this).hasClass('selected');
 
@@ -165,8 +165,7 @@ var DebugMemoryProgram = function(emulation_core) {
 					target: this,
 					address: this.getAttribute("data-address"),
 					changeHandler: function() {
-						var address_hex = this.popup.settings.address;
-						var address = parseInt(address_hex, 16);
+						var address = this.popup.settings.address;
 						var value_hex = this.popup.$input.value;
 						var value_int = parseInt(value_hex, 16);
 
@@ -179,14 +178,12 @@ var DebugMemoryProgram = function(emulation_core) {
 					}.bind(this)
 				})
 			} else {
-				var hex_address_str = this.getAttribute("data-address");
-				var address = parseInt(hex_address_str,16);
-
+				var address = parseInt(this.getAttribute("data-address"),10);
 				PubSub.publish("Debugger.Memory.Select", address);
 			}
 		});
 
-		$(this.window.$el).on("contextmenu", ".memory-value", function(event){
+		$(this.window.$el).on("contextmenu", ".memory-byte", function(event){
 			var hex_address_str = this.getAttribute("data-address");
 			var address = parseInt(hex_address_str,16);
 

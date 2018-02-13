@@ -24,8 +24,10 @@
 	left: 0;
 	transform: translateX(-50%);
 	font-size: 10px;
-	left: 0;
-	color: transparent !important;
+	line-height: 12px;
+	text-align: center;
+	color: #000;
+	width: 40px;
 }
 
 .symbol.tooltip::after {
@@ -60,15 +62,15 @@
 	display: inline-block;
 }
 
-.memory-value {
+.memory-byte {
 	display: inline-block;
 	text-align: center;
 	width: 30px;
 }
-.memory-value.selected {
+.memory-byte.selected {
 	background-color: rgba(0,0,255,.2);
 }
-.memory-value.breakpoint {
+.memory-byte.breakpoint {
 	border: 1px solid #F00;
 }
 
