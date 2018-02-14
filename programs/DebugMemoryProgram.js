@@ -111,6 +111,8 @@ var DebugMemoryProgram = function(emulation_core) {
 		for( var i = 0; i < GameBoyCore.MemoryRegions.length; i++ ) {
 			if( region_name == GameBoyCore.MemoryRegions[i].label ) {
 
+				this.selectedMemBank = region_name;
+
 				if( !this.window.$el.querySelector(".memory-region-tab[data-region='"+region_name+"']") ) {
 					this.InitializeTab(region_name);
 				}
@@ -248,7 +250,6 @@ var DebugMemoryProgram = function(emulation_core) {
 			event.target.classList.add("selected");
 
 			var dataRegion = event.target.getAttribute("data-region");
-			this.selectedMemBank = dataRegion;
 			this.SetTab(this.selectedMemBank);
 			this.Refresh();
 		}.bind(this));
@@ -324,15 +325,19 @@ var DebugMemoryProgram = function(emulation_core) {
 
 	this.JumpTo = function(address) {
 		var region = GameBoyCore.GetMemoryRegion(address);
-		var col = address%0x10;
-		var row = address - col;
-		var $tab = this.window.$el.querySelector(".memory-region-tab[data-region='"+region.label+"']");
-		var $row = this.window.$el.querySelector(".memory-row[data-address='"+row+"']");
-		$tab.scrollTop = $row.offsetTop - $tab.offsetHeight/2;
+		this.SetTab(region.label);
 
-		this.selectedAddress = address;
-		//this.scrollbar.Set(this.addressTop/16);
-		this.Refresh();
+		window.setTimeout(function(){
+			var col = address%0x10;
+			var row = address - col;
+			var $tab = this.window.$el.querySelector(".memory-region-tab[data-region='"+region.label+"']");
+			var $row = this.window.$el.querySelector(".memory-row[data-address='"+row+"']");
+			$tab.scrollTop = $row.offsetTop - $tab.offsetHeight/2;
+
+			this.selectedAddress = address;
+			//this.scrollbar.Set(this.addressTop/16);
+			this.Refresh();
+		}.bind(this),100);
 			
 	}
 
