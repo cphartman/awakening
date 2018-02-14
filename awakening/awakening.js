@@ -130,6 +130,8 @@ delete me
 	}
 
 	this.Launch = function() {
+		PubSub.immediateExceptions = true;
+		
 		// Everything should be setup in the config and ready to go
 		this.InitEmulator();
 		this.InitInput();

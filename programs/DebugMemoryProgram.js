@@ -9,6 +9,8 @@ var DebugMemoryProgram = function(emulation_core) {
 	this.selectedMemBank = "ROM0";
 	this.selectedRomBank = 1;
 
+	this.$bytes = new Array(0xFFFF);
+
 	this.selectedAddress = -1;
 	this.template = `
 		<div class="debug-memory-window">
@@ -27,112 +29,207 @@ var DebugMemoryProgram = function(emulation_core) {
 				<span>08</span><span>09</span><span>0A</span><span>0B</span><span>0C</span><span>0D</span><span>0E</span><span>0F</span>
 			</div>
 
-			<div class='memory-rows'>
-	            <div class='memory-row' v-for="row in memory_rows" v-bind:data-address="row.address">
-	            	<div class='symbol-row' v-if="row.symbols.length">
-	            		<span class='symbol memory-link' v-for="symbol in row.symbols" v-bind:data-address="symbol.address" v-bind:style="{left: symbol.left}">
-							{{symbol.label}}	
-	            		</span>
-					</div>
-	                <div class='memory-address'>{{row.address_hex}}</div>
-	                <div class='memory-values'>
-	                    <div class='memory-byte' v-for="col in row.values" v-bind:data-address="col.address" v-bind:class="{ selected: col.selected, breakpoint: col.breakpoint }">{{col.value_hex}}</div>
-	                </div>
-	            </div>
-	        </div>
+			<div class='memory-region-tabs'>
+
+			</div>
+	            
+
         </div>
 	`;
 
 	this.Refresh = function() {
-		this.CompileRows();
+		this.RefreshViewport();
 	}
 
-	this.CompileRows = function() {
+	this.RefreshViewport = function() {
 
-		var rows = [];
+		var viewport = this.GetViewport();
+		var length = viewport[1]-viewport[0];
 		
-		if( this.selectedMemBank != "ROM1" ) {
+		var read_memory = DebugReadMemory(viewport[0], length);
 
-			// Get values
-			var mem_values = [];
-			var bank_start = 0;
-			var bank_end = 0;;
+		for( var i = 0; i < read_memory.length; i++ ) {
 			
-			for( var i = 0; i < GameBoyCore.MemoryRegions.length; i++ ) {
-				if( GameBoyCore.MemoryRegions[i].label == this.selectedMemBank ) {
-					bank_start = GameBoyCore.MemoryRegions[i].start;
-					bank_end = GameBoyCore.MemoryRegions[i].end;					
-				}
+			var address = viewport[0] + i;
+
+			if( address == 0xdb00 ) {
+				//debugger;
 			}
 
-			for( var index = 0; index < bank_end-bank_start; index++) {
+			var value = read_memory[i];
+			var value_hex = int2hex(value,2);
+			this.$bytes[address].innerHTML = value_hex;
 
-				col = index % 16;
-				row = Math.floor(index/16);
-
-				if( col == 0 ) {
-					var row_address = bank_start+(row*16);
-					rows[row] = {
-						symbols: [],
-						values: [],
-						address: row_address,
-						address_hex: int2hex(row_address,4)
-					};
-				}
-
-				var address = bank_start + index;
-				var value = DebugReadMemory(address); 
-				var symbol = EmulationSymbols.Lookup(address);
-				if( symbol ) {
-					var s = {
-						label: symbol.label,
-						address: address,
-						left: (52+col*40)+"px",
-						hex: int2hex(address,4)
-					}
-
-					rows[row].symbols.push(s);
-				}
-				rows[row].values[col] = {
-					value: value,
-					value_hex: int2hex(value,2),
-					address: address,
-					selected: (address == this.selectedAddress),
-					breakpoint: false
-				}
+			if( address == this.selectedAddress ) {
+				this.$bytes[address].classList.add("selected");
+			} else {
+				this.$bytes[address].classList.remove("selected");
 			}
-
-			this.view.memory_rows = rows;
 		}
+	}
+
+	this.GetViewport = function() {
+		// Get row ranges to refresh
+		var bank = this.selectedMemBank;
+		var region = GameBoyCore.GetMemoryRegion(bank);
+		var $tab = this.window.$el.querySelector(".memory-region-tab[data-region='"+bank+"']");
+		var $rows = $tab.querySelectorAll(".memory-row");
+		var scrollTop = $tab.scrollTop;
+		var viewportHeight = $tab.offsetHeight;
+		var viewportStartAddress = 0;
+		var viewportEndAddress = 0;
+
+		for( var i = 0; i < $rows.length; i++ ) {
+			var $row = $rows[i];
+			
+			if( !viewportStartAddress && $row.offsetTop >= scrollTop ) {
+				viewportStartAddress = parseInt($row.getAttribute("data-address"),10);
+
+				// Get row before
+				viewportStartAddress -= 0x10;
+				if( viewportStartAddress < region.start) {
+					viewportStartAddress = region.start;
+				}
+			}
+
+			if( $row.offsetTop > scrollTop + viewportHeight || i + 1 == $rows.length ) {
+				viewportEndAddress = parseInt($row.getAttribute("data-address"),10);
+				
+				// This will break on the first address in the row, viewport includes full row
+				viewportEndAddress += 0x10;
+
+				break;
+
+
+			}
+		}
+
+		return [viewportStartAddress,viewportEndAddress];
+	}
+
+	this.SetTab = function(region_name) {
+		for( var i = 0; i < GameBoyCore.MemoryRegions.length; i++ ) {
+			if( region_name == GameBoyCore.MemoryRegions[i].label ) {
+
+				if( !this.window.$el.querySelector(".memory-region-tab[data-region='"+region_name+"']") ) {
+					this.InitializeTab(region_name);
+				}
+
+				if( this.window.$el.querySelector(".memory-region.selected") ) {
+					this.window.$el.querySelector(".memory-region.selected").classList.remove("selected");	
+				}
+
+				if( this.window.$el.querySelector(".memory-region-tab.selected") ) {
+					this.window.$el.querySelector(".memory-region-tab.selected").classList.remove("selected");
+				}
+
+				this.window.$el.querySelector(".memory-region[data-region='"+region_name+"']").classList.add("selected");
+				this.window.$el.querySelector(".memory-region-tab[data-region='"+region_name+"']").classList.add("selected");
+
+				// Hack
+				window.setTimeout(function(){	
+					this.RepositionSymbols();
+				}.bind(this),1);
+			}
+		}
+	}
+
+	this.RepositionSymbols = function() {
+
+		// Position Symbols
+		var $symbol_list = this.window.$el.querySelectorAll(".memory-symbol");
+		for( var i = 0; i < $symbol_list.length; i++ ) {
+			var $symbol = $symbol_list[i];
+			var address = $symbol.getAttribute("data-address");
+			var $byte = this.window.$el.querySelector(".memory-byte.address-"+address);
+			var left = $byte.offsetLeft;
+			var width = $byte.offsetWidth;
+			$symbol.style['left'] = left+"px";
+			$symbol.style['width'] = width+"px";
+		}
+
+	}
+
+	this.InitializeTab = function(region_name) {
+		var $tabs = this.window.$el.querySelector(".memory-region-tabs");
+
+		var region = GameBoyCore.GetMemoryRegion(region_name);
+
+		var $tab = document.createElement("div");
+		$tab.classList.add("memory-region-tab");
+		$tab.setAttribute("data-region", region.label)
+		
+		$tab.addEventListener("scroll",function(e){
+			this.Refresh();
+		}.bind(this));
+
+		var $row = false;
+		var $bytes = false;
+		var $symbols = false;
+
+		// Create rows and bytes
+		for( var address = region.start; address < region.end; address++ ) {
+
+			var col = address % 0x10;
+			var row = address-col;
+			var row_hex = int2hex(row,4);
+
+			if( col == 0 ) {
+				$row = document.createElement("div");
+				$row.classList.add("memory-row");
+				$row.setAttribute("data-address", address);
+
+				$bytes = document.createElement("div");
+				$bytes.classList.add("memory-bytes");
+				$bytes.innerHTML = "<div class='row-address'>"+row_hex+"</div>"
+
+				$symbols = document.createElement("div");
+				$symbols.classList.add("memory-symbols");
+
+				$row.appendChild($symbols);
+				$row.appendChild($bytes);
+			}
+
+			var $byte = document.createElement("div");
+			$byte.classList.add("memory-byte");
+			$byte.classList.add("address-"+address);
+			$byte.setAttribute("data-address",address);
+
+			$bytes.appendChild($byte);
+
+			var symbol = EmulationSymbols.Lookup(address);
+			if( symbol ) {
+				var $symbol = document.createElement("div");
+				$symbol.classList.add("memory-symbol");
+				$symbol.innerHTML = symbol.label;
+				$symbol.setAttribute("data-address", address);
+				
+				$symbols.appendChild($symbol);
+			}
+
+			if( this.$bytes[address] ) {
+				throw exception("should not happen");
+			}
+			this.$bytes[address] = $byte;
+
+			if( col == 0x0F ) {
+				
+				$tab.appendChild($row);
+			}
+		}
+
+		$tabs.appendChild($tab);
+
 	}
 
 	this.Init = function() {
 
-		var $vue_node =  this.window.$el;
-
-		this.view = new Vue({
-		  el: this.window.$el,
-		  data: {
-		  	memory_rows: [],
-		  }
-		});
-
-		// Vue destroys the original window dom element, restore the reference
-		this.window.$el = this.view.$el;
-		this.$window = this.view.$el.querySelector('.debug-memory-window');
-
-		var row_count = this.emulationCore.memory.length / 16;
-		//this.scrollbar = new Scrollbar();
-		//this.scrollbar.Init(this.$window, row_count);
-		//this.scrollbar.callback = this.domEvents['scroll'].bind(this);
-
-		this.Refresh();
+		this.SetTab("ROM0");
 
 		PubSub.subscribe("Debugger.Memory.JumpTo",function (msg, data) {
 			this.JumpTo(data);
 			this.Refresh();
 		}.bind(this));
-
 
 		PubSub.subscribe("Debugger.Memory.Select",function (msg, data) {
 			this.selectedAddress = data;
@@ -152,6 +249,7 @@ var DebugMemoryProgram = function(emulation_core) {
 
 			var dataRegion = event.target.getAttribute("data-region");
 			this.selectedMemBank = dataRegion;
+			this.SetTab(this.selectedMemBank);
 			this.Refresh();
 		}.bind(this));
 
@@ -184,9 +282,8 @@ var DebugMemoryProgram = function(emulation_core) {
 		});
 
 		$(this.window.$el).on("contextmenu", ".memory-byte", function(event){
-			var hex_address_str = this.getAttribute("data-address");
-			var address = parseInt(hex_address_str,16);
-
+			var address = this.getAttribute("data-address");
+			
 			PubSub.publish("Debugger.Memory.Select", address);
 
 			this.popup = new Popup({
@@ -223,17 +320,15 @@ var DebugMemoryProgram = function(emulation_core) {
 
 			return false;
 		});
-
 	}
 
 	this.JumpTo = function(address) {
-		var window_height = this.$window.offsetHeight;
-		row_count = Math.floor(window_height / 20);
-		
-		this.addressTop = (address & 0xFFF0) - Math.floor(row_count/2) * 0x0010;
-		if( this.addressTop < 0 ) {
-			this.addressTop = 0;
-		}
+		var region = GameBoyCore.GetMemoryRegion(address);
+		var col = address%0x10;
+		var row = address - col;
+		var $tab = this.window.$el.querySelector(".memory-region-tab[data-region='"+region.label+"']");
+		var $row = this.window.$el.querySelector(".memory-row[data-address='"+row+"']");
+		$tab.scrollTop = $row.offsetTop - $tab.offsetHeight/2;
 
 		this.selectedAddress = address;
 		//this.scrollbar.Set(this.addressTop/16);

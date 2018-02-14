@@ -11,6 +11,7 @@
 .memory-row {
 	line-height: 20px;
 	user-select: none;
+	position: relative;
 }
 
 .symbol-row {
@@ -65,7 +66,7 @@
 .memory-byte {
 	display: inline-block;
 	text-align: center;
-	width: 30px;
+	width: 33px;
 }
 .memory-byte.selected {
 	background-color: rgba(0,0,255,.2);
@@ -74,8 +75,44 @@
 	border: 1px solid #F00;
 }
 
+.memory-region-tabs,
 .memory-rows {
+	position: relative;
 	height: calc( 100% - 51px );
+}
+
+.memory-region-tab {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 	overflow-y: scroll;
-	padding-left: 5px;
+	background-color: #FFF;
+	display: none;
+}
+
+.memory-region-tab.selected {
+	display: block;
+}
+
+.row-address,
+.memory-bytes {
+	display: inline-block;
+}
+
+.memory-symbol {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	font-size: 10px;
+	line-height: 12px;
+	text-align: center;
+	color: #000;
+	font-family: awakening;
+	letter-spacing: -2px;
+}
+
+.memory-symbol:first-child {
+	position: relative;
 }

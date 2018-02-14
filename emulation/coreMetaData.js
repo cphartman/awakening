@@ -102,21 +102,25 @@ GameBoyCore.OpCodeParameters = {
 		0xfe: 1
 };
 
-GameBoyCore.GetMemoryRegion = function(address) {
-	if( address >= 0x4000 && address < 0x8000 ) {
-		var bankOffset = gameboy.currentROMBank;
-		var bank = bankOffset / 0x4000;
-		return "("+(bank+"").padStart(2,'0')+")";
-	}
+// By address or label
+GameBoyCore.GetMemoryRegion = function(address_or_label) {
 
 	for( var i = 0; i < GameBoyCore.MemoryRegions.length; i++ ) {
-		if( address < GameBoyCore.MemoryRegions[i].end ) {
-			return GameBoyCore.MemoryRegions[i].label;
+		if( address_or_label === GameBoyCore.MemoryRegions[i].label ) {
+			return GameBoyCore.MemoryRegions[i];
 		}
 	}
 
-	return " BAD";
+	for( var i = 0; i < GameBoyCore.MemoryRegions.length; i++ ) {
+		if( address_or_label < GameBoyCore.MemoryRegions[i].end ) {
+			return GameBoyCore.MemoryRegions[i];
+		}
+	}
+
+	return "BAD";
 }
+
+
 
 GameBoyCore.MemoryRegions = [{
 		start: 0x000,
@@ -156,7 +160,7 @@ GameBoyCore.MemoryRegions = [{
 		label: "I/O"
 	},{
 		start: 0xFF80,
-		end: 0xFFFF,
+		end: 0x10000,
 		label: "HRAM"
 }];
 
