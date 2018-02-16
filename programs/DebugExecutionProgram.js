@@ -5,61 +5,178 @@ var DebugExecutionProgram = function(emulation_core) {
 	this.view = false;
 	this.scrollbar = false;
 	this.$toolbar = false;
+	
+	this.selectedBank = -1;
 	this.selected = false;
+
+	this.$rows = new Array(0x4000);
 	this.template = `
 		<div class='debug-execution-window'>
             <div class='execution-toolbar'>
+            	<button class='memory-region'>ROM {{bank}}</button>
+				
                 <button class='execution-play'>►</button>
                 <button class='execution-pause'>‖</button>
                 <button class='execution-step'>→</button>
-            </div>       	
-            <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current, selected: row.selected }" v-bind:data-bank="row.bank" v-bind:data-address="row.address">
-                <div v-if="row.functionStart">
-            		Function() {
-            	</div>
-                <div class='execution-label'>{{row.label}}</div>
-                <div class='execution-address'>{{row.address}}</div>
-                <div class='execution-opcode'>{{row.opcode}}</div>
-                <div class='execution-instruction'>
-                	{{row.instruction}}
-                </div>
-                <div v-if="row.functionEnd">
-            	} //
-            	</div>
             </div>
+            <div class='execution-rows'></div>
         </div>
 	`;
+
+	/* 	
+    <div class='execution-row' v-for="row in op_rows" v-bind:class="{ current: row.current, selected: row.selected }" v-bind:data-bank="row.bank" v-bind:data-address="row.address">
+        <div class='ececution-comment'>{{row.comment}}</div>
+        <div class='execution-address'>{{row.address}}</div>
+        <div class='execution-opcode'>{{row.opcode}}</div>
+        <div class='execution-instruction'>{{row.instruction}}</div>
+    </div>
+	*/
+
+	this.SetupRows = function() {
+		var $row_container = this.$window.querySelector(".execution-rows");
+
+		for( var i = 0; i < this.$rows.length; i++ ) {
+			var address = i;
+
+			var $row = document.createElement("div");
+			$row.classList.add("execution-row");
+			$row.setAttribute("data-address",address);
+
+			var $comment = document.createElement("div");
+			$comment.classList.add("execution-comment");
+			$comment.setAttribute("data-address",address);
+			
+			var $data = document.createElement("div");
+			$data.classList.add("execution-data");
+			$data.setAttribute("data-address",address);
+
+			$row.appendChild($comment);
+			$row.appendChild($data);
+			$row_container.appendChild($row);
+
+			this.$rows[address] = {
+				comment: $comment,
+				data: $data
+			}
+		}
+	}
 	
 	this.Init = function() {
 
-		var $vue_node = this.window.$el;
-	
-		this.view = new Vue({
-		  el: $vue_node,
-		  data: {
-		  	op_rows: [],
-		  }
-		});
-
-		// Vue destroys the original window dom element, restore the reference
-		this.window.$el = this.view.$el;
-		this.$window = this.view.$el.querySelector('.debug-execution-window');
+		this.$window = this.window.$el.querySelector(".debug-execution-window");
 
 		this.$play = this.$window.querySelector(".execution-play");
 		this.$pause = this.$window.querySelector(".execution-pause");
 		this.$step = this.$window.querySelector(".execution-step");
 
-		var row_count = this.emulationCore.memory.length;
-		this.scrollbar = new Scrollbar();
-		this.scrollbar.Init(this.$window, row_count);
-		this.scrollbar.callback = this.domEvents['scroll'].bind(this);
-
-		this.Refresh();
+		this.SetupRows();
 
 		this.BindEvents();
 
 		this.SetupExecutionLinkEvent();
 	};
+
+	this.RefreshViewport = function() {
+
+		var viewport = this.GetViewport();
+		var length = viewport[1]-viewport[0];
+		var program_counter = this.emulationCore.programCounter;
+		var bank = this.selectedBank;
+
+		var read_memory = DebugReadMemory(viewport[0], length);
+
+		for( var i = 0; i < length; i++ ) {
+			var row_index = viewport[0] + i;
+			var $data = this.$rows[row_index]['data'];
+			var address = parseInt($data.getAttribute("data-address"),10);
+
+			var code = DebugReadMemory(address);
+			var instruction = GameBoyCore.OpCode[code];
+			var address_hex = int2hex(address,4);
+			var code_str = int2hex(code,2);
+			var parameter_total = 0;
+
+			// Get parameters
+			if( typeof GameBoyCore.OpCodeParameters[code] != 'undefined' ) {
+		        parameter_total = GameBoyCore.OpCodeParameters[code];
+		
+		        for( var p = 0; p < parameter_total; p++ ) {
+	                var next_code = DebugReadMemory(address + p + 1);
+	                code_str += " " + int2hex(next_code,2);
+		        }
+		    }
+
+	        
+			$data.innerHTML = address_hex + " " + code_str + " " + instruction;
+
+			if( program_counter == address ) {
+				$data.classList.add("current");
+			} else {
+				$data.classList.remove("current")
+			}
+
+			if( address == this.selectedAddress ) {
+				$data.classList.add("selected");
+			} else {
+				$data.classList.remove("selected");
+			}
+
+		}
+	}
+
+	this.SetBank = function(bank) {
+
+		if( bank == this.selectedBank ) {
+			return;
+		}
+
+		this.selectedBank = bank;
+
+		for( var i = 0; i < 0x4000; i++ ) {
+			
+			var address = i;
+			if( bank ) {
+				address += 0x4000;
+			}
+
+			var row_index = address % 0x4000;
+			var $data = this.$rows[row_index]['data'];
+			$data.setAttribute("data-address",address);
+
+			// Update toolbar rom bank # 
+			this.$window.querySelector(".memory-region").innerHTML = "ROM: "+int2hex(bank,2);
+		}
+	}
+
+	this.GetViewport = function() {
+
+		var $container = this.$window.querySelector(".execution-rows");
+		var $rows = $container.querySelectorAll(".execution-row");
+		var scrollTop = $container.scrollTop;
+		var viewportHeight = $container.offsetHeight;
+		var viewportStartAddress = 0;
+		var viewportEndAddress = 0;
+
+		if( viewportHeight == 0 ) {
+			return [0,0];
+		}
+
+		for( var i = 0; i < $rows.length; i++ ) {
+			var $row = $rows[i];
+			
+			if( !viewportStartAddress && $row.offsetTop >= scrollTop ) {
+				viewportStartAddress = parseInt($row.getAttribute("data-address"),10);
+			}
+
+			if( $row.offsetTop > scrollTop + viewportHeight || i + 1 == $rows.length ) {
+				viewportEndAddress = parseInt($row.getAttribute("data-address"),10);
+				
+				break;
+			}
+		}
+
+		return [viewportStartAddress,viewportEndAddress];
+	}
 
 	this.BindEvents = function() {
 		// Event listeners
@@ -67,8 +184,9 @@ var DebugExecutionProgram = function(emulation_core) {
 		this.$pause.addEventListener("click", this.domEvents['pauseClick'].bind(this));
 		this.$step.addEventListener("click", this.domEvents['stepClick']);	
 		$(this.$window).on("click", ".execution-row", this.domEvents['rowClick']);
+		this.$window.querySelector(".execution-rows").addEventListener("scroll", this.Refresh.bind(this));;	
 
-		$(this.window.$el).on("contextmenu", ".execution-row", this.domEvents['contextMenu']);
+		$(this.window.$el).on("contextmenu-disabled", ".execution-row", this.domEvents['contextMenu']);
 
 
 		// Subscriptions
@@ -78,7 +196,7 @@ var DebugExecutionProgram = function(emulation_core) {
 		}.bind(this));
 
 		PubSub.subscribe("Debugger.Execution.JumpTo",function (msg, data) {
-			this.JumpTo(data);
+			//this.JumpTo(data);
 			this.Refresh();
 		}.bind(this));
 		PubSub.subscribe("Debugger.Execution.Pause", function(){
@@ -188,83 +306,37 @@ var DebugExecutionProgram = function(emulation_core) {
 		});
 	}
 
-	this.JumpTo = function(address) {
-		var window_height = this.$window.offsetHeight;
-		row_count = Math.floor(window_height / 20);
+	this.addressToRow = function(address) {
+		var row_index = address % 0x4FFF;
+		return this.$row[row_index];
+	}
 
-		this.addressTop = address - Math.floor(row_count*.75);
-		this.scrollbar.Set(this.addressTop);
+	this.JumpTo = function(address, bank) {
+
+		var row_index = address % 0x4000;
+		var $row = this.$rows[row_index]['data'];
+		var $container = this.$window.querySelector(".execution-rows");
+		$container.scrollTop = $row.offsetTop - $container.offsetHeight/2;
+
+		this.SetBank(bank);
+		this.selectedAddress = address;
 		this.Refresh();
 	}
 
 	this.JumpToCurrent = function() {
-		var window_height = this.$window.offsetHeight;
-		row_count = Math.floor(window_height / 20);
+		var pc = this.emulationCore.programCounter;
+		var bank = 0;
+		if( pc > 0x4000 && pc < 0x8000 ) {
+			bank = this.emulationCore.currentROMBank/0x4000;
+		}
+		this.JumpTo(pc, bank);
 
-		this.addressTop = this.emulationCore.programCounter - Math.floor(row_count*.75);
-		this.scrollbar.Set(this.addressTop);
 		this.Refresh();
 	}
 
 	this.Refresh = function() {
-		var row_height = 20;
-		var program_counter = this.emulationCore.programCounter;
-		var address = this.addressTop;
 
-		var window_height = this.$window.offsetHeight;
-		row_count = Math.floor(window_height / row_height);
+		this.RefreshViewport();
 
-		// Setup row data
-		this.view.op_rows = [];
-		for( var row_index = 0; row_index < row_count; row_index++ ) {
-			var code = DebugReadMemory(address);
-			var instruction = GameBoyCore.OpCode[code];
-			var code_str = int2hex(code,2);
-			var parameter_total = 0;
-
-			// Get parameters
-			if( typeof GameBoyCore.OpCodeParameters[code] != 'undefined' ) {
-				parameter_total = GameBoyCore.OpCodeParameters[code];
-				
-				for( var p = 0; p < parameter_total; p++ ) {
-					var next_code = DebugReadMemory(address + p + 1);
-					code_str += " " + int2hex(next_code,2);
-				}
-			}
-
-			this.view.op_rows[row_index] = {
-				label: GameBoyCore.GetMemoryRegion(address),
-				address: int2hex(address,4),
-				opcode: code_str,
-				instruction: instruction,
-				current: (program_counter == address),
-				selected: (address == this.selected),
-			}
-
-			var bank = 0;
-			if( address >= 0x4000 && address < 0x8000 ) {
-				bank_rom_address = this.emulationCore.currentROMBank;
-				bank = bank_rom_address/0x4000;
-			}
-
-			this.view.op_rows[row_index]['bank'] = bank;
-
-			if( this.emulationCore.debug_trace.functions.start[address] ) {
-				this.view.op_rows[row_index]['functionStart'] = "Function()";
-			} else 	if( this.emulationCore.debug_trace.functions.end[address] ) {
-				this.view.op_rows[row_index]['functionEnd'] = "} //";
-			}
-
-			// Increment row address for each parameter
-			for( var p = 1; p <= parameter_total; p++ ) {
-				if( address + 1 == program_counter ) {
-					break;
-				} else {
-					address++;
-				}
-			}
-
-			address++;
-		}
 	}
 };

@@ -6,7 +6,16 @@
 	width: 100%;
 	font-family: 'Roboto Mono';
 	overflow: hidden;
-	padding-left: 5px;
+}
+
+.execution-rows {
+	position: absolute;
+	top: 51px;
+	left: 0;
+	width: 100%;
+	height: calc( 100% - 51px );
+	overflow-y: scroll;
+	background-color: #FFF;
 }
 
 .execution-row {
@@ -14,13 +23,13 @@
 	line-height: 20px;
 }
 
-.execution-row.selected {
+.execution-row .selected {
 	background-color: rgba(0,0,255,.2);
 }
 
-.execution-row.current {
-	background-color: #F00;
-	color: #FFF;
+.execution-row .current {
+	background-color: rgba(0,255,0,.2);
+	font-weight: bold;
 }
 
 .execution-label,

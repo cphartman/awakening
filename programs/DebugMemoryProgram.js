@@ -250,7 +250,7 @@ var DebugMemoryProgram = function(emulation_core) {
 			event.target.classList.add("selected");
 
 			var dataRegion = event.target.getAttribute("data-region");
-			this.SetTab(this.selectedMemBank);
+			this.SetTab(dataRegion);
 			this.Refresh();
 		}.bind(this));
 
