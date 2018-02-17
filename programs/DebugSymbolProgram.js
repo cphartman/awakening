@@ -70,7 +70,7 @@ var DebugSymbolProgram = function(emulation_core) {
 			}
 		});
 
-
+		/*
 		PubSub.subscribe("Debugger.Symbol.Edit", function(msg,data){
 			var address = data;
 			this.popup = new Popup({
@@ -90,7 +90,7 @@ var DebugSymbolProgram = function(emulation_core) {
 			});
 
 		}.bind(this));
-
+		*/
 		PubSub.subscribe("Debugger.Symbol.Select", function(msg,data){
 			this.selected = parseInt(data,16);
 			this.Refresh();
@@ -104,34 +104,29 @@ var DebugSymbolProgram = function(emulation_core) {
 
 	this.RefreshSymbols = function() {
 
-		var symbols = EmulationSymbols.GetAll();
-		var namespaces = {};
+		var symbols = EmulationSymbols.GetAllByNamespace(this.emulationCore.name);
 
-		this.view.symbols = [];
-		for( var i in symbols ) {
-			var symbol = symbols[i];
-			if( symbol.namespace == this.view.currentNamespace ) {
-				var address = symbol.address;
-				var s = {
-					label: symbol.label,
-					address: int2hex(address,4),
-					value: int2hex(DebugReadMemory(address),2),
-					selected: (address == this.selected ? "selected" : "")
-				};
-				this.view.symbols.push(s);
+		for( var namespace in symbols ) {
+			if( namespace == this.view.currentNamespace ) {
+				this.view.symbols = [];
+				for( var address in symbols[namespace] ) {
+					var address = parseInt(address,10);
+					var symbol = symbols[namespace][address];
+					var s = {
+						label: symbol.label,
+						address: int2hex(address,4),
+						value: int2hex(DebugReadMemory(address),2),
+						selected: (address == this.selected ? "selected" : "")
+					};
+					this.view.symbols.push(s);
+				}
 			}
-			
 		}
 	}
 
 	this.RefreshNamespaces = function() {
-		var symbols = EmulationSymbols.GetAll();
-		var namespaces = {};
 
-		for( var i in symbols ) {
-			var symbol = symbols[i];
-			namespaces[symbol.namespace] = 1;
-		}
+		var namespaces = EmulationSymbols.GetAllByNamespace(this.emulationCore.name);
 
 		this.view.namespaces = [];
 		for( var namespace in namespaces ) {

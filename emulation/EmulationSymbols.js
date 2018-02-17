@@ -3,8 +3,39 @@ var EmulationSymbols = (function(){
 
 	this.symbolList = [];
 
-	this.GetAll = function() {
-		return this.symbolList;
+	this.GetCompiledSymbols = function(rom_name) {
+		var symbols = {};
+		for(var address in this.data.system ) {
+			symbols[address] = Object.assign({}, this.data.system[address]);
+		}
+
+		for(var address in this.data[rom_name] ) {
+			if( symbols[address] ) {
+				symbols[address] = Object.assign(symbols[address], this.data[rom_name][address]);
+			} else {
+				symbols[address] = Object.assign({}, this.data[rom_name][address]);
+			}
+		}
+
+		return symbols;
+	}
+
+	this.GetAllByNamespace = function(rom_name) {
+		var symbols = this.GetCompiledSymbols(rom_name);
+		var namespaces = {};
+		for( var address in symbols ) {
+			var symbol = symbols[address];
+
+			if( symbol.namespace ) {
+				if( !namespaces[symbol.namespace] ) {
+					namespaces[symbol.namespace] = {};
+				}
+
+				namespaces[symbol.namespace][address] = symbol;
+			}
+		}
+
+		return namespaces;
 	}
 
 	this.Init = function() {

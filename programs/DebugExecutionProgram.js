@@ -88,6 +88,7 @@ var DebugExecutionProgram = function(emulation_core) {
 		for( var i = 0; i < length; i++ ) {
 			var row_index = viewport[0] + i;
 			var $data = this.$rows[row_index]['data'];
+			var $comment = this.$rows[row_index]['comment'];
 			var address = parseInt($data.getAttribute("data-address"),10);
 
 			var code = DebugReadMemory(address);
@@ -105,7 +106,6 @@ var DebugExecutionProgram = function(emulation_core) {
 	                code_str += " " + int2hex(next_code,2);
 		        }
 		    }
-
 	        
 			$data.innerHTML = address_hex + " " + code_str + " " + instruction;
 
@@ -119,6 +119,24 @@ var DebugExecutionProgram = function(emulation_core) {
 				$data.classList.add("selected");
 			} else {
 				$data.classList.remove("selected");
+			}
+
+			var symbol = ( EmulationSymbols ? EmulationSymbols.Lookup(address, this.emulationCore.name) : false);
+			if( symbol ) {
+
+				var comment = "";
+				
+				if( symbol.comment ) {
+					comment += symbol.comment + "<br>";
+				}
+
+				if( symbol.label ) {
+					comment += symbol.label;
+				}
+
+				$comment.innerHTML = comment;
+			} else {
+				$comment.innerHTML = "";
 			}
 
 		}

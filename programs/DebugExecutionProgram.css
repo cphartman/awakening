@@ -70,3 +70,9 @@
 .memory-row-toolbar button.selected {
 	background-color: rgba(0,0,255,.2);
 }
+
+.execution-comment {
+	padding-left: 25px;
+	color: #5f9273;
+	font-style: italic;
+}
