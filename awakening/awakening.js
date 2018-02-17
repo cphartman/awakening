@@ -57,9 +57,12 @@ Awakening = function(){
 			"emulation/coreSaveState",
 			"emulation/coreDebugger",
 			"emulation/coreMetaData",
-			
 		]);
-		FileLoader.LoadJs(["emulation/EmulationSymbols"]);
+
+		// Symbols
+		FileLoader.LoadJs([
+			"emulation/EmulationSymbols",
+		]);
 
 		// Load awakening project files
 		FileLoader.LoadCss(["awakening/awakening"]);
@@ -73,19 +76,6 @@ Awakening = function(){
 		FileLoader.LoadJs(["config"],{
 			success: this.LoadConfig.bind(this)
 		});
-
-/*
-delete me
-		FileLoader.LoadJs(["assets/rom/la_rom"]);
-		FileLoader.LoadJs(["assets/rom/la_savestate"], function(){
-			PubSub.immediateExceptions = true;
-			
-			this.InitEmulator();
-			this.LoadSaveState();
-			this.InitInput();
-			this.InitDebugger();
-		}.bind(this));
-*/
 	},
 
 	this.ShowLoading = function() {
@@ -114,6 +104,7 @@ delete me
 							success: this.LoadSaveState.bind(this)
 						},);
 					} else {
+
 						this.HideLoading();
 
 						if( this.config.start_paused ){
@@ -148,6 +139,9 @@ delete me
 		this.emulator.start();
 
 		run();
+
+		// Check for symbols to load
+		FileLoader.LoadJs(["symbols/"+this.emulator.name]);
 	}
 
 	this.InitDebugger = function() {

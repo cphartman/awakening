@@ -8,72 +8,7 @@
 	font-family: 'Roboto Mono';
 }
 
-.memory-row {
-	line-height: 20px;
-	user-select: none;
-	position: relative;
-}
-
-.symbol-row {
-	position: relative;
-	height: 20px;
-}
-
-.memory-row .symbol {
-	position: absolute;
-	top: 0;
-	left: 0;
-	transform: translateX(-50%);
-	font-size: 10px;
-	line-height: 12px;
-	text-align: center;
-	color: #000;
-	width: 40px;
-}
-
-.symbol.tooltip::after {
-	color: #000;
-}
-
-.symbol.tooltip:hover {
-	z-index: 999;
-    transition: left .1s ease-out, transform .1s ease-out;
-}
-.symbol.tooltip:hover::after {
-	transform: translateY(-100%) translateX(-50%);
-	left: 50%;
-}
-
-
-.memory-row-header {
-	padding-left: 72px;
-	background-color: #ccc;
-}
-.memory-row-header span {
-	width: 30px;
-	text-align: center;
-	font-weight: bold;
-	display: inline-block;
-}
-
-
-.memory-label,
-.memory-values,
-.memory-address {
-	display: inline-block;
-}
-
-.memory-byte {
-	display: inline-block;
-	text-align: center;
-	width: 33px;
-}
-.memory-byte.selected {
-	background-color: rgba(0,0,255,.2);
-}
-.memory-byte.breakpoint {
-	border: 1px solid #F00;
-}
+/* Tabs */
 
 .memory-region-tabs,
 .memory-rows {
@@ -96,23 +31,75 @@
 	display: block;
 }
 
-.row-address,
-.memory-bytes {
-	display: inline-block;
+/* Rows */
+
+.memory-row-header,
+.memory-row {
+	padding-left: 30px;
 }
 
-.memory-symbol {
-	display: inline-block;
+
+.memory-row-header {
+	background-color: #ccc;
+}
+.memory-row-header span {
+	font-weight: bold;
+}
+
+
+.memory-row {
+	line-height: 20px;
+	user-select: none;
+	position: relative;
+}
+
+.memory-row::before {
+	content: attr(data-address-hex);
 	position: absolute;
-	top: 0;
+	bottom: 0;
+	left: 0;
+}
+
+.memory-row-header,
+.memory-symbols,
+.memory-bytes {
+	width: 100%;
+}
+
+
+.memory-symbols::after {
+	content: '';
+	display: block;
+	height: 0;
+	clear: both;
+}
+
+/* Cells */
+
+.memory-row-header span,
+.memory-symbol,
+.memory-byte {
+	display: inline-block;
+	text-align: center;
+	width: 33px;
+}
+.memory-byte.selected {
+	background-color: rgba(0,0,255,.2);
+}
+.memory-byte.breakpoint {
+	border: 1px solid #F00;
+}
+
+
+.memory-symbol {
 	font-size: 10px;
 	line-height: 12px;
 	text-align: center;
 	color: #000;
-	font-family: awakening;
-	letter-spacing: -2px;
-}
-
-.memory-symbol:first-child {
-	position: relative;
+	letter-spacing: -1px;
+	float: left;
+	min-height: 1px;
+	vertical-align: bottom;
+	overflow: hidden;
+	padding: 0 3px;
 }

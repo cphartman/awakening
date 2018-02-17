@@ -1,0 +1,14 @@
+== FILENAME FORMAT ==
+
+Filename loaded from Game Title header ($0134-$0142)
+
+== FILE FORMAT ==
+
+EmulationSymbols.data.rom['{FILENAME}'] = {
+	address: {
+		value: Data readable name
+		label: Address readable Name
+		comment: Readable notes
+		namespace: Categorization 
+	}
+}

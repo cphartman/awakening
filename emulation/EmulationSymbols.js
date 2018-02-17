@@ -1,5 +1,6 @@
 var EmulationSymbols = (function(){
-	
+	this.data = {};
+
 	this.symbolList = [];
 
 	this.GetAll = function() {
@@ -7,22 +8,30 @@ var EmulationSymbols = (function(){
 	}
 
 	this.Init = function() {
-		FileLoader.LoadJs(["emulation/symbols/ExportedSymbols"], {
-			success: function() {
-				this.symbolList = ExportedSymbols;
-			}.bind(this)
-		});
+		FileLoader.LoadJs(["symbols/system"]);
 	};
 
-	this.Lookup = function(address) {
-		for( var i = 0; i < this.symbolList.length; i++ ) {
-			lhsSymbol = this.symbolList[i];
-			if( lhsSymbol.address == address ) {
-				return lhsSymbol;
-			}
+	this.Load = function(name) {
+		FileLoader.LoadJs(["symbols/"+name]);	
+	}
+
+	this.Lookup = function(address, rom_name) {
+
+		var working = {}
+
+		if( this.data.system[address] ) {
+			working = Object.assign(working, this.data.system[address]);
 		}
 
-		return false;
+		if( rom_name && this.data[rom_name] && this.data[rom_name][address] ) {
+			working = Object.assign(working, this.data[rom_name][address]);
+		}
+
+		if( Object.keys(working).length ) {
+			return working;
+		} else {
+			return false;
+		}
 	}
 
 	this.Update = function(rhsSymbol) {

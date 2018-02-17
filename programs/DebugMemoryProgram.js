@@ -58,12 +58,27 @@ var DebugMemoryProgram = function(emulation_core) {
 
 			var value = read_memory[i];
 			var value_hex = int2hex(value,2);
-			this.$bytes[address].innerHTML = value_hex;
+			this.$bytes[address]['data'].innerHTML = value_hex;
 
 			if( address == this.selectedAddress ) {
-				this.$bytes[address].classList.add("selected");
+				this.$bytes[address]['data'].classList.add("selected");
 			} else {
-				this.$bytes[address].classList.remove("selected");
+				this.$bytes[address]['data'].classList.remove("selected");
+			}
+
+			var symbol = ( EmulationSymbols ? EmulationSymbols.Lookup(address, this.emulationCore.name) : false);
+			if( symbol ) {
+
+				if( symbol.label ) {
+					this.$bytes[address]['symbol'].innerHTML = symbol.label;
+				}
+
+				if( symbol.value ) {
+					this.$bytes[address]['data'].innerHTML = symbol.value;
+				}
+
+			} else {
+				this.$bytes[address]['symbol'].innerHTML = "";
 			}
 		}
 	}
@@ -128,43 +143,32 @@ var DebugMemoryProgram = function(emulation_core) {
 				this.window.$el.querySelector(".memory-region[data-region='"+region_name+"']").classList.add("selected");
 				this.window.$el.querySelector(".memory-region-tab[data-region='"+region_name+"']").classList.add("selected");
 
-				// Hack
-				window.setTimeout(function(){	
-					this.RepositionSymbols();
-				}.bind(this),1);
 			}
 		}
 	}
 
-	this.RepositionSymbols = function() {
-
-		// Position Symbols
-		var $symbol_list = this.window.$el.querySelectorAll(".memory-symbol");
-		for( var i = 0; i < $symbol_list.length; i++ ) {
-			var $symbol = $symbol_list[i];
-			var address = $symbol.getAttribute("data-address");
-			var $byte = this.window.$el.querySelector(".memory-byte.address-"+address);
-			var left = $byte.offsetLeft;
-			var width = $byte.offsetWidth;
-			$symbol.style['left'] = left+"px";
-			$symbol.style['width'] = width+"px";
-		}
-
-	}
-
 	this.InitializeTab = function(region_name) {
+
 		var $tabs = this.window.$el.querySelector(".memory-region-tabs");
 
 		var region = GameBoyCore.GetMemoryRegion(region_name);
 
-		var $tab = document.createElement("div");
-		$tab.classList.add("memory-region-tab");
-		$tab.setAttribute("data-region", region.label)
-		
-		$tab.addEventListener("scroll",function(e){
-			this.Refresh();
-		}.bind(this));
+		// Get new tab or clear current tab
+		var $tab = this.window.$el.querySelector(".memory-region-tab[data-region='"+region.label+"']");
+		if( !$tab ) {
+			var $tab = document.createElement("div");
+			$tab.classList.add("memory-region-tab");
+			$tab.setAttribute("data-region", region.label)
+			$tabs.appendChild($tab);
 
+			$tab.addEventListener("scroll",function(e){
+				this.Refresh();
+			}.bind(this));
+		} else {
+			debugger;
+			$tab.innerHTML = "";
+		}
+		
 		var $row = false;
 		var $bytes = false;
 		var $symbols = false;
@@ -180,47 +184,47 @@ var DebugMemoryProgram = function(emulation_core) {
 				$row = document.createElement("div");
 				$row.classList.add("memory-row");
 				$row.setAttribute("data-address", address);
+				$row.setAttribute("data-address-hex", int2hex(address,4));
 
 				$bytes = document.createElement("div");
 				$bytes.classList.add("memory-bytes");
-				$bytes.innerHTML = "<div class='row-address'>"+row_hex+"</div>"
 
 				$symbols = document.createElement("div");
 				$symbols.classList.add("memory-symbols");
 
 				$row.appendChild($symbols);
 				$row.appendChild($bytes);
+
 			}
 
+			// Create byte dom elementes
 			var $byte = document.createElement("div");
 			$byte.classList.add("memory-byte");
 			$byte.classList.add("address-"+address);
 			$byte.setAttribute("data-address",address);
-
 			$bytes.appendChild($byte);
 
-			var symbol = EmulationSymbols.Lookup(address);
-			if( symbol ) {
-				var $symbol = document.createElement("div");
-				$symbol.classList.add("memory-symbol");
-				$symbol.innerHTML = symbol.label;
-				$symbol.setAttribute("data-address", address);
-				
-				$symbols.appendChild($symbol);
-			}
+			// Create symbol dom elements
+			$symbol = document.createElement("div");
+			$symbol.classList.add("memory-symbol");
+			$symbol.classList.add("address-"+address);
+			$symbol.setAttribute("data-address",address);
+			$symbols.appendChild($symbol);
 
+			// Cache element references
 			if( this.$bytes[address] ) {
 				throw exception("should not happen");
 			}
-			this.$bytes[address] = $byte;
+			this.$bytes[address] = {
+				data: $byte,
+				symbol: $symbol
+			};
 
+			// Row complete
 			if( col == 0x0F ) {
-				
 				$tab.appendChild($row);
 			}
 		}
-
-		$tabs.appendChild($tab);
 
 	}
 
@@ -242,6 +246,11 @@ var DebugMemoryProgram = function(emulation_core) {
 			this.breakpoints = data;
 			this.Refresh();
 		}.bind(this));
+
+		PubSub.subscribe("Debugger.Symbols.Changed", function(msg, data) {
+			// TODO: fix
+			this.InitializeTab("MEM0");
+		});
 
 		this.SetupMemoryLinkEvent();
 

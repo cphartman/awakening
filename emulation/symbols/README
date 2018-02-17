@@ -1,0 +1,13 @@
+== FILENAME FORMAT ==
+
+Filename loaded from Game Title header ($0134-$0142)
+
+== FILE FORMAT ==
+
+EmulationSymbols.rom['{FILENAME}'] = {
+	address: {
+		label: Display Name
+		comment: Comment for this line of code
+		namespace: Categorization 
+	}
+}
